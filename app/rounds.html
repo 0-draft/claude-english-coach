@@ -1,3 +1,4 @@
+<meta charset="utf-8">
 <title>English Rounds</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -78,6 +79,8 @@ body {
   padding-block: 20px 64px;
 }
 .wrap { max-width: 46rem; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+main { display: flex; flex-direction: column; gap: 28px; }
+[hidden] { display: none !important; }
 button, input, textarea, select { font: inherit; color: inherit; }
 :focus-visible { outline: 2px solid var(--cobalt); outline-offset: 2px; }
 .num { font-family: var(--f-num); font-variant-numeric: tabular-nums; }
@@ -552,7 +555,7 @@ function sampleErr(e) {
 }
 
 /* ---------- text comparison ---------- */
-function keyOf(w) { return (w.replace(/[’‘]/g, "'").toLowerCase().match(/[a-z0-9']+/g) || []).join("'").replace(/^'+|'+$/g, ""); }
+function keyOf(w) { return (w.replace(/[’‘']/g, "").toLowerCase().match(/[a-z0-9]+/g) || []).join(""); }
 function wordsOf(s) { return s.trim().split(/\s+/).filter(Boolean).map((orig) => ({ orig, key: keyOf(orig) })).filter((w) => w.key); }
 function align(answer, typed) {
   const a = wordsOf(answer), b = wordsOf(typed);
