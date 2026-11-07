@@ -1,0 +1,1309 @@
+<title>English Rounds</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;700&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/ts-fsrs@5.4.2/dist/index.umd.js"></script>
+<style>
+/* Layout: one narrow run sheet. Today's three blocks run top to bottom in the order they are done; drills take over the same column. English is set in a reading serif, the UI in a plain sans, numbers in mono. */
+:root {
+  --paper: #ECEFF3;
+  --sheet: #F9FAFB;
+  --ink: #17202B;
+  --muted: #586374;
+  --rule: #D2D8E0;
+  --cobalt: #2944C4;
+  --cobalt-soft: #DEE4FA;
+  --ok: #1D7549;
+  --ok-soft: #DCEFE4;
+  --warn: #9A5A00;
+  --bad: #B0261D;
+  --bad-soft: #F8E0DD;
+  --c-review: #2944C4;
+  --c-listen: #13807A;
+  --c-speak: #8A3F9E;
+  --f-en: "Literata", Georgia, "Times New Roman", serif;
+  --f-ui: "IBM Plex Sans JP", "Hiragino Sans", "Noto Sans JP", system-ui, sans-serif;
+  --f-num: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --r: 6px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --paper: #10141A;
+    --sheet: #171C24;
+    --ink: #DCE2EA;
+    --muted: #8B96A6;
+    --rule: #2A313C;
+    --cobalt: #93A8FF;
+    --cobalt-soft: #222B4A;
+    --ok: #63C390;
+    --ok-soft: #173327;
+    --warn: #E2A54E;
+    --bad: #F2837A;
+    --bad-soft: #3A1E1C;
+    --c-review: #93A8FF;
+    --c-listen: #4FC2B9;
+    --c-speak: #C98AD9;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #10141A;
+  --sheet: #171C24;
+  --ink: #DCE2EA;
+  --muted: #8B96A6;
+  --rule: #2A313C;
+  --cobalt: #93A8FF;
+  --cobalt-soft: #222B4A;
+  --ok: #63C390;
+  --ok-soft: #173327;
+  --warn: #E2A54E;
+  --bad: #F2837A;
+  --bad-soft: #3A1E1C;
+  --c-review: #93A8FF;
+  --c-listen: #4FC2B9;
+  --c-speak: #C98AD9;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--f-ui);
+  font-size: 15px;
+  line-height: 1.65;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 64px;
+}
+.wrap { max-width: 46rem; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+button, input, textarea, select { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--cobalt); outline-offset: 2px; }
+.num { font-family: var(--f-num); font-variant-numeric: tabular-nums; }
+.en { font-family: var(--f-en); }
+.muted { color: var(--muted); }
+.label { font-size: 12px; letter-spacing: .06em; color: var(--muted); font-weight: 500; }
+
+/* header */
+.top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; border-bottom: 1px solid var(--rule); padding-bottom: 12px; }
+.mark { font-family: var(--f-en); font-style: italic; font-size: 22px; letter-spacing: -.01em; }
+.mark b { font-style: normal; font-weight: 600; }
+nav { display: flex; gap: 4px; }
+nav button { background: none; border: 0; padding: 6px 10px; border-radius: var(--r); cursor: pointer; color: var(--muted); }
+nav button[aria-current="page"] { color: var(--ink); background: var(--sheet); box-shadow: inset 0 0 0 1px var(--rule); }
+.status { font-size: 12px; color: var(--muted); }
+.status.warn { color: var(--warn); }
+
+/* today */
+.hero { display: flex; flex-direction: column; gap: 14px; }
+.hero-line { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+.big { font-family: var(--f-num); font-size: clamp(40px, 9vw, 64px); line-height: 1; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.big small { font-size: .38em; color: var(--muted); letter-spacing: 0; }
+.bar { display: flex; height: 10px; border-radius: 5px; overflow: hidden; background: var(--rule); }
+.bar span { display: block; height: 100%; }
+.bar .min { position: relative; }
+.plan { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 14px; }
+.plan input { flex: 1 1 14rem; min-width: 0; background: transparent; border: 0; border-bottom: 1px dashed var(--rule); padding: 2px 0; }
+.plan input:focus { border-bottom-color: var(--cobalt); outline: none; }
+
+.sheet { background: var(--sheet); border: 1px solid var(--rule); border-radius: var(--r); }
+.runs { display: flex; flex-direction: column; }
+.run { display: grid; grid-template-columns: 2.2rem 1fr auto; gap: 4px 14px; align-items: center; padding: 16px 18px; border-top: 1px solid var(--rule); }
+.run:first-child { border-top: 0; }
+.run .idx { font-family: var(--f-num); font-size: 13px; color: var(--muted); align-self: start; padding-top: 2px; }
+.run h3 { margin: 0; font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.run p { margin: 0; grid-column: 2; font-size: 13.5px; color: var(--muted); }
+.run .go { grid-row: 1 / span 2; grid-column: 3; }
+.dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.pill { font-size: 11.5px; padding: 1px 8px; border-radius: 99px; border: 1px solid var(--rule); color: var(--muted); font-weight: 500; white-space: nowrap; }
+.pill.done { color: var(--ok); border-color: currentColor; background: var(--ok-soft); }
+.pill.part { color: var(--warn); border-color: currentColor; }
+.pill.focus { color: var(--cobalt); border-color: currentColor; background: var(--cobalt-soft); }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 14px; border-radius: var(--r); border: 1px solid var(--rule); background: var(--sheet); cursor: pointer; font-weight: 500; white-space: nowrap; }
+.btn:hover { border-color: var(--muted); }
+.btn.primary { background: var(--cobalt); border-color: var(--cobalt); color: var(--sheet); }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn.ghost { background: transparent; border-color: transparent; color: var(--muted); padding-inline: 8px; }
+.btn.ghost:hover { color: var(--ink); }
+.btn:disabled { opacity: .45; cursor: default; }
+.btn svg { width: 16px; height: 16px; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.between { justify-content: space-between; }
+
+/* habit grid */
+.habit { display: flex; flex-direction: column; gap: 10px; }
+.grid66 { display: grid; grid-template-columns: repeat(22, 1fr); gap: 4px; }
+.grid66 i { aspect-ratio: 1; max-width: 100%; border-radius: 3px; background: var(--rule); display: block; }
+.grid66 i.done { background: var(--ok); }
+.grid66 i.part { background: color-mix(in srgb, var(--ok) 35%, var(--rule)); }
+.grid66 i.miss { background: transparent; box-shadow: inset 0 0 0 1px var(--rule); }
+.grid66 i.today { outline: 2px solid var(--ink); outline-offset: 1px; }
+.grid66 i.future { background: transparent; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--rule) 60%, transparent); }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+
+/* drill */
+.drill { display: flex; flex-direction: column; gap: 18px; }
+.drill-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.drill-head h2 { margin: 0; font-size: 18px; display: flex; align-items: center; gap: 10px; }
+.card { padding: 22px; display: flex; flex-direction: column; gap: 16px; }
+.prompt-en { font-family: var(--f-en); font-size: clamp(21px, 4.4vw, 27px); line-height: 1.4; text-wrap: balance; margin: 0; }
+.prompt-ja { font-size: 19px; font-weight: 500; margin: 0; }
+.wrong { text-decoration: underline wavy var(--bad); text-decoration-thickness: 1.5px; text-underline-offset: 5px; }
+.answer-in { width: 100%; font-family: var(--f-en); font-size: 19px; line-height: 1.5; padding: 10px 12px; border: 1px solid var(--rule); border-radius: var(--r); background: var(--paper); resize: vertical; }
+.answer-in:focus { outline: none; border-color: var(--cobalt); box-shadow: 0 0 0 3px var(--cobalt-soft); }
+.diff { font-family: var(--f-en); font-size: 19px; line-height: 1.9; margin: 0; }
+.diff .eq { }
+.diff .miss { background: var(--bad-soft); color: var(--bad); border-radius: 3px; padding: 0 3px; }
+.diff .extra { text-decoration: line-through; color: var(--muted); padding: 0 2px; }
+.verdict { font-weight: 700; }
+.verdict.ok { color: var(--ok); }
+.verdict.ng { color: var(--bad); }
+.note { font-size: 14px; color: var(--muted); border-left: 2px solid var(--rule); padding-left: 10px; margin: 0; }
+.grades { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.grades button { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px 6px; border-radius: var(--r); border: 1px solid var(--rule); background: var(--sheet); cursor: pointer; }
+.grades button .num { font-size: 12px; color: var(--muted); }
+.grades button.suggest { border-color: var(--cobalt); box-shadow: 0 0 0 2px var(--cobalt-soft); }
+.grades kbd { font-family: var(--f-num); font-size: 10.5px; color: var(--muted); }
+.progress-dots { display: flex; gap: 3px; flex-wrap: wrap; }
+.progress-dots i { width: 14px; height: 4px; border-radius: 2px; background: var(--rule); display: block; }
+.progress-dots i.on { background: var(--ink); }
+.chip { font-size: 11.5px; padding: 1px 7px; border-radius: 4px; background: var(--paper); border: 1px solid var(--rule); color: var(--muted); font-family: var(--f-num); }
+
+/* speak */
+.clock { font-family: var(--f-num); font-size: clamp(56px, 16vw, 96px); line-height: 1; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
+.rounds { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.rounds div { border: 1px solid var(--rule); border-radius: var(--r); padding: 8px 10px; display: flex; flex-direction: column; gap: 2px; }
+.rounds div.cur { border-color: var(--c-speak); box-shadow: 0 0 0 2px color-mix(in srgb, var(--c-speak) 25%, transparent); }
+.rounds b { font-family: var(--f-num); font-weight: 500; font-size: 18px; }
+.topics { display: flex; flex-direction: column; gap: 6px; }
+.topics button { text-align: left; background: var(--paper); border: 1px solid var(--rule); border-radius: var(--r); padding: 10px 12px; cursor: pointer; display: flex; flex-direction: column; gap: 2px; }
+.topics button:hover { border-color: var(--muted); }
+.topics button[aria-pressed="true"] { border-color: var(--c-speak); background: color-mix(in srgb, var(--c-speak) 9%, var(--paper)); }
+.topics .en { font-size: 16px; }
+.topics small { color: var(--muted); font-size: 12.5px; }
+.fb { display: flex; flex-direction: column; gap: 12px; }
+.fb-item { border-top: 1px solid var(--rule); padding-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+.quote { font-family: var(--f-en); font-size: 18px; }
+.quote mark { background: var(--bad-soft); color: var(--bad); padding: 0 3px; border-radius: 3px; }
+
+/* lists & stats */
+.list { display: flex; flex-direction: column; }
+.item { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; padding: 12px 16px; border-top: 1px solid var(--rule); align-items: start; }
+.item:first-child { border-top: 0; }
+.item .en { font-size: 16px; }
+.item .meta { font-size: 12px; color: var(--muted); display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: 0; }
+.stat { padding: 14px 18px; display: flex; flex-direction: column; gap: 2px; border-left: 1px solid var(--rule); }
+.stat:first-child { border-left: 0; }
+.stat b { font-family: var(--f-num); font-weight: 500; font-size: 26px; font-variant-numeric: tabular-nums; line-height: 1.2; }
+.chart { padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; }
+.chart svg { width: 100%; height: auto; display: block; overflow: visible; }
+.chart text { fill: var(--muted); font-family: var(--f-num); font-size: 10px; }
+.chart .grid { stroke: var(--rule); stroke-width: 1; }
+form.add { display: grid; gap: 10px; padding: 18px; }
+form.add label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
+form.add input, form.add textarea, form.add select, .field { border: 1px solid var(--rule); border-radius: var(--r); background: var(--paper); padding: 8px 10px; }
+.field { width: 100%; }
+details summary { cursor: pointer; font-weight: 500; }
+h2.sec { font-size: 15px; margin: 0; font-weight: 700; }
+.section { display: flex; flex-direction: column; gap: 12px; }
+.empty { padding: 22px; color: var(--muted); display: flex; flex-direction: column; gap: 10px; }
+.empty p { margin: 0; }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(18px + env(safe-area-inset-bottom, 0px)); background: var(--ink); color: var(--paper); padding: 9px 16px; border-radius: var(--r); font-size: 14px; z-index: 20; max-width: calc(100% - 32px); }
+.thinking { color: var(--muted); font-style: italic; }
+@media (max-width: 520px) {
+  .grades { grid-template-columns: repeat(2, 1fr); }
+  .grid66 { grid-template-columns: repeat(11, 1fr); }
+  .run { grid-template-columns: 1.6rem 1fr; }
+  .run .go { grid-row: auto; grid-column: 2; justify-self: start; margin-top: 6px; }
+  .stat { border-left: 0; border-top: 1px solid var(--rule); }
+  .stat:first-child { border-top: 0; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="mark"><b>English</b> Rounds</div>
+    <nav id="nav">
+      <button type="button" data-view="today" aria-current="page">今日</button>
+      <button type="button" data-view="cards">カード</button>
+      <button type="button" data-view="stats">記録</button>
+    </nav>
+    <div class="status" id="status">記録を読み込み中…</div>
+  </header>
+  <main id="main">
+    <div class="sheet empty">
+      <p>今日のメニューを準備中。復習カード、ディクテーション、4/3/2 の記録をここに読み込む。</p>
+    </div>
+  </main>
+</div>
+
+<script>
+"use strict";
+/* ---------- tiny DOM helper ---------- */
+function h(tag, props, ...kids) {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(props || {})) {
+    if (v == null || v === false) continue;
+    if (k === "class") el.className = v;
+    else if (k === "style") el.setAttribute("style", v);
+    else if (k.startsWith("on") && typeof v === "function") el.addEventListener(k.slice(2), v);
+    else if (k === "value") el.value = v;
+    else el.setAttribute(k, v === true ? "" : v);
+  }
+  for (const kid of kids.flat(Infinity)) {
+    if (kid == null || kid === false) continue;
+    el.append(kid instanceof Node ? kid : String(kid));
+  }
+  return el;
+}
+function svgEl(tag, attrs, ...kids) {
+  const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+  for (const [k, v] of Object.entries(attrs || {})) el.setAttribute(k, v);
+  for (const kid of kids.flat()) if (kid != null) el.append(kid instanceof Node ? kid : document.createTextNode(String(kid)));
+  return el;
+}
+const ICON = {
+  play: () => svgEl("svg", { viewBox: "0 0 16 16", "aria-hidden": "true" }, svgEl("path", { d: "M4 2.5v11l9-5.5z", fill: "currentColor" })),
+  slow: () => svgEl("svg", { viewBox: "0 0 16 16", "aria-hidden": "true" }, svgEl("path", { d: "M3 2.5v11l7-5.5zM11 3h2v10h-2z", fill: "currentColor" })),
+};
+const pad = (n) => String(n).padStart(2, "0");
+const main = document.getElementById("main");
+const statusEl = document.getElementById("status");
+function toast(msg) {
+  document.querySelector(".toast")?.remove();
+  const t = h("div", { class: "toast", role: "status" }, msg);
+  document.body.append(t);
+  setTimeout(() => t.remove(), 2600);
+}
+
+/* ---------- dates (day starts at 04:00, like Anki) ---------- */
+function dayKey(d = new Date()) {
+  const x = new Date(d.getTime() - 4 * 3600e3);
+  return `${x.getFullYear()}-${pad(x.getMonth() + 1)}-${pad(x.getDate())}`;
+}
+function addDays(key, n) {
+  const [y, m, d] = key.split("-").map(Number);
+  const x = new Date(y, m - 1, d + n, 12);
+  return `${x.getFullYear()}-${pad(x.getMonth() + 1)}-${pad(x.getDate())}`;
+}
+function daysBetween(a, b) {
+  const [y1, m1, d1] = a.split("-").map(Number), [y2, m2, d2] = b.split("-").map(Number);
+  return Math.round((Date.UTC(y2, m2 - 1, d2) - Date.UTC(y1, m1 - 1, d1)) / 864e5);
+}
+const JP_DOW = ["日", "月", "火", "水", "木", "金", "土"];
+function fmtDay(key) {
+  const [y, m, d] = key.split("-").map(Number);
+  return `${m}/${d} (${JP_DOW[new Date(y, m - 1, d).getDay()]})`;
+}
+function fmtIvl(ms) {
+  const m = ms / 60000;
+  if (m < 60) return `${Math.max(1, Math.round(m))}分`;
+  const hr = m / 60;
+  if (hr < 24) return `${Math.round(hr)}時間`;
+  const d = hr / 24;
+  if (d < 31) return `${Math.round(d)}日`;
+  if (d < 365) return `${Math.round(d / 30)}か月`;
+  return `${(d / 365).toFixed(1)}年`;
+}
+
+/* ---------- content that ships with the page ---------- */
+const BLOCKS = {
+  review: { name: "復習", min: 10, color: "var(--c-review)", desc: "前に間違えた表現と単語を、英語で自分で書いて答える。" },
+  listen: { name: "聞く", min: 20, color: "var(--c-listen)", desc: "1 文ずつ聞いて書き取る。聞き落とした所は自動でカードになる。" },
+  speak: { name: "話す", min: 15, color: "var(--c-speak)", desc: "同じお題を 4 分、3 分、2 分で 3 回話す。速さ (wpm) を記録する。" },
+};
+const MIN_DAY_SEC = 15 * 60;
+const CATS = ["article", "plural", "tense", "preposition", "word-order", "word-choice", "collocation", "spelling", "other"];
+const CAT_JA = { article: "冠詞", plural: "単数・複数", tense: "時制", preposition: "前置詞", "word-order": "語順", "word-choice": "単語の選び方", collocation: "コロケーション", spelling: "綴り", other: "その他" };
+
+const SENTENCES = [
+  { id: "s01", text: "I'm gonna push a fix for that later today.", note: "going to は gonna。to はほぼ聞こえない" },
+  { id: "s02", text: "Did you get a chance to look at my PR?", note: "Did you は「ディジュ」とつながる" },
+  { id: "s03", text: "We should've caught this in code review.", note: "should have は「シュダヴ」。have が弱くなる" },
+  { id: "s04", text: "Let me share my screen real quick.", note: "Let me は「レミ」。t が落ちる" },
+  { id: "s05", text: "It's kind of a weird edge case, to be honest.", note: "kind of は「カインダ」" },
+  { id: "s06", text: "What do you think about splitting this into two PRs?", note: "What do you は「ワダヤ」まで縮む" },
+  { id: "s07", text: "Could you walk me through how the cache gets invalidated?", note: "Could you は「クジュ」。walk の l は発音しない" },
+  { id: "s08", text: "I wasn't able to reproduce it on my machine.", note: "wasn't able は「ワズンエイブル」とつながる" },
+  { id: "s09", text: "Let's take this offline and circle back next week.", note: "take this の th が弱くなる。circle back は会議の定番表現" },
+  { id: "s10", text: "The tests are passing locally, but CI keeps failing.", note: "tests の sts がつぶれて「テス」に近くなる" },
+  { id: "s11", text: "We ran into a race condition when two requests hit at the same time.", note: "ran into は「ラニントゥ」、hit at は「ヒラッ」" },
+  { id: "s12", text: "I'd rather not add another dependency for that.", note: "I'd は短く「アイド」。not add は「ナラッド」" },
+  { id: "s13", text: "Has anyone looked into why the build got so slow?", note: "Has は弱く「ズ」程度。looked into は「ルックティントゥ」" },
+  { id: "s14", text: "That's a fair point. I hadn't thought of that.", note: "thought of は「ソートヴ」。of は弱い" },
+  { id: "s15", text: "Can you hear me okay? I think my mic was muted.", note: "Can you は「キャニュ」" },
+  { id: "s16", text: "Sorry, could you say that again? You cut out for a second.", note: "cut out は「カラウ」。t が弾音になる" },
+  { id: "s17", text: "We'll need to bump the version before we cut a release.", note: "need to は d が消えて「ニートゥ」" },
+  { id: "s18", text: "I'm not sure that's gonna scale once we have more users.", note: "not sure の t が消える" },
+  { id: "s19", text: "It turned out the token was expiring earlier than we expected.", note: "turned out は「ターンダウ」とつながる" },
+  { id: "s20", text: "Let me know if you want me to pair with you on it.", note: "want me は「ウォンミ」。t が消える" },
+  { id: "s21", text: "Ship it, and we can iterate on the API later.", note: "Ship it は「シッピッ」。and は「ン」" },
+  { id: "s22", text: "I've got a hard stop at three, so let's keep it short.", note: "got a は「ガラ」。hard stop は「次の予定があって絶対に抜ける」" },
+  { id: "s23", text: "Who's gonna own the migration?", note: "Who's gonna は「フーズガナ」" },
+  { id: "s24", text: "What's the blast radius if this goes wrong?", note: "blast radius は「影響範囲」。What's the は「ワツザ」" },
+  { id: "s25", text: "We could put it behind a feature flag and roll it out gradually.", note: "put it は「プリッ」、roll it out は「ロウリラウ」" },
+  { id: "s26", text: "The policy gets evaluated on every request, so it has to be fast.", note: "has to は「ハスタ」" },
+  { id: "s27", text: "I don't wanna block you, so go ahead and merge it.", note: "don't wanna は「ドンワナ」" },
+  { id: "s28", text: "Let's give it a couple of days and see if anyone complains.", note: "give it a は「ギヴィラ」、couple of は「カプラ」" },
+  { id: "s29", text: "Does that make sense, or should I go over it again?", note: "go over it again は全部つながって 1 語のように聞こえる" },
+  { id: "s30", text: "Thanks for jumping on this so quickly.", note: "jump on は「すぐ取りかかる」。for は弱く「ファ」" },
+];
+const TOPICS = [
+  { en: "Explain one of your open source projects to someone who has never seen it.", ja: "自分の OSS を、見たことがない人に説明する" },
+  { en: "Describe a bug you fixed recently: what broke, how you found it, and how you fixed it.", ja: "最近直したバグの話。何が壊れて、どう見つけて、どう直したか" },
+  { en: "Explain how authorization works in a system you know well.", ja: "よく知っているシステムの認可の仕組みを説明する" },
+  { en: "Talk about a tool you use every day and why you like it.", ja: "毎日使っているツールと、それを気に入っている理由" },
+  { en: "Introduce yourself at a meetup after a conference talk.", ja: "カンファレンスの後のミートアップで自己紹介する" },
+  { en: "Describe a technical decision you would make differently today.", ja: "今ならやり方を変える、過去の技術的な判断" },
+  { en: "Tell someone what you did last weekend.", ja: "先週末に何をしたか" },
+  { en: "Explain why you started learning English and what you want to do with it.", ja: "英語を始めた理由と、英語で何をしたいか" },
+];
+
+/* ---------- FSRS ---------- */
+const F = window.FSRS || null;
+const scheduler = F ? F.fsrs(F.generatorParameters({ request_retention: 0.9, maximum_interval: 3650, enable_fuzz: true })) : null;
+function liveCard(saved) {
+  if (!F) return null;
+  if (!saved) return F.createEmptyCard(new Date());
+  return { ...saved, due: new Date(saved.due), last_review: saved.last_review ? new Date(saved.last_review) : undefined };
+}
+function savedCard(c) {
+  const o = {};
+  for (const [k, v] of Object.entries(c)) o[k] = v instanceof Date ? v.toISOString() : (v === undefined ? null : v);
+  return o;
+}
+
+/* ---------- storage: db capability, or this browser as a fallback ---------- */
+const Store = {
+  mode: "loading",          // loading | db | local
+  db: null, base: "",
+  cards: new Map(), days: new Map(),
+  settings: null,
+  chains: new Map(),
+  serial(key, fn) {
+    const p = (this.chains.get(key) || Promise.resolve()).then(fn, fn);
+    this.chains.set(key, p.catch(() => {}));
+    return p;
+  },
+  defaults() {
+    return { plan: "", newPerDay: 8, startDate: dayKey(), focus: [], sentences: [], listenCursor: 0 };
+  },
+  async init() {
+    const c = window.claude;
+    let db = null, uid = null;
+    if (c && typeof c.use === "function") {
+      try {
+        const [d, u] = await Promise.all([c.use("db"), c.use("user")]);
+        db = d;
+        uid = u ? await u.id() : null;
+      } catch (e) { db = null; }
+    }
+    if (db && uid) {
+      this.db = db; this.base = "data/users/" + uid;
+      const timer = setTimeout(() => setStatus("記録サーバーにまだつながらない。待っている間はこのまま使えるが、保存は後になる", true), 10000);
+      try {
+        const [s, cs, ds] = await Promise.all([
+          db.doc(this.base + "/settings").get(),
+          db.collection(this.base + "/srs/cards").get(),
+          db.collection(this.base + "/log/days").get(),
+        ]);
+        clearTimeout(timer);
+        this.settings = { ...this.defaults(), ...(s.exists ? s.data() : {}) };
+        for (const d of cs.docs) this.cards.set(d.id, { id: d.id, ...structuredClone(d.data()) });
+        for (const d of ds.docs) this.days.set(d.id, structuredClone(d.data()));
+        this.mode = "db";
+        if (!s.exists) await this.putSettings(this.settings);
+        setStatus("claude.ai に保存中");
+        return;
+      } catch (e) {
+        clearTimeout(timer);
+        setStatus("記録サーバーを読めなかった (" + (e && e.code || "error") + ")。このブラウザ内に保存する", true);
+      }
+    }
+    this.mode = "local";
+    let raw = null;
+    try { raw = JSON.parse(localStorage.getItem("english-rounds.v1") || "null"); } catch (e) { raw = null; }
+    this.settings = { ...this.defaults(), ...(raw?.settings || {}) };
+    for (const [id, cd] of Object.entries(raw?.cards || {})) this.cards.set(id, { id, ...cd });
+    for (const [k, d] of Object.entries(raw?.days || {})) this.days.set(k, d);
+    if (!raw) for (const s of STARTER) this.cards.set(s.id, { ...s, createdAt: new Date().toISOString() });
+    if (statusEl.textContent.startsWith("記録を読み込み中")) setStatus("このブラウザ内に保存中 (claude.ai の外で開いている)", true);
+  },
+  saveLocal() {
+    if (this.mode !== "local") return;
+    const cards = {}; for (const [id, c] of this.cards) { const { id: _, ...rest } = c; cards[id] = rest; }
+    try { localStorage.setItem("english-rounds.v1", JSON.stringify({ settings: this.settings, cards, days: Object.fromEntries(this.days) })); } catch (e) {}
+  },
+  report(e) { toast("保存できなかった (" + (e && e.code || "error") + ")。もう一度操作すると再保存する"); },
+  async putCard(card) {
+    this.cards.set(card.id, card);
+    if (this.mode !== "db") return this.saveLocal();
+    const { id, ...body } = card;
+    return this.serial("c:" + id, () => this.db.collection(this.base + "/srs/cards").doc(id).set(body)).catch((e) => this.report(e));
+  },
+  async delCard(id) {
+    this.cards.delete(id);
+    if (this.mode !== "db") return this.saveLocal();
+    return this.serial("c:" + id, () => this.db.collection(this.base + "/srs/cards").doc(id).delete()).catch((e) => this.report(e));
+  },
+  async putDay(key) {
+    const d = this.days.get(key); if (!d) return;
+    if (this.mode !== "db") return this.saveLocal();
+    const body = structuredClone(d);
+    return this.serial("d:" + key, () => this.db.collection(this.base + "/log/days").doc(key).set(body)).catch((e) => this.report(e));
+  },
+  async putSettings(s) {
+    this.settings = s;
+    if (this.mode !== "db") return this.saveLocal();
+    const body = structuredClone(s);
+    return this.serial("settings", () => this.db.doc(this.base + "/settings").set(body)).catch((e) => this.report(e));
+  },
+};
+function setStatus(t, warn) { statusEl.textContent = t; statusEl.classList.toggle("warn", !!warn); }
+
+// Starter cards: used only when the page runs outside claude.ai. On claude.ai, Claude seeds the store.
+const STARTER = [
+  { id: "st-f1", kind: "fix", prompt: "Please check attached file.", answer: "Please check the attached file.", category: "article", note: "特定のファイルなので the が要る", source: "starter" },
+  { id: "st-f2", kind: "fix", prompt: "I will fix it until tomorrow.", answer: "I'll fix it by tomorrow.", category: "preposition", note: "期限は by。until は「それまでずっと」", source: "starter" },
+  { id: "st-v1", kind: "vocab", prompt: "影響範囲 (障害や変更が波及する範囲)", answer: "blast radius", example: "What's the ____ if this goes wrong?", note: "", source: "starter" },
+];
+
+/* ---------- day log ---------- */
+function today() {
+  const k = dayKey();
+  const d = Store.days.get(k) || { date: k };
+  d.review = { sec: 0, n: 0, again: 0, newN: 0, ...(d.review || {}) };
+  d.listen = { sec: 0, n: 0, missed: 0, ids: [], ...(d.listen || {}) };
+  d.speak = { sec: 0, sessions: [], ...(d.speak || {}) };
+  Store.days.set(k, d);
+  return d;
+}
+function daySec(d) { return d ? (d.review?.sec || 0) + (d.listen?.sec || 0) + (d.speak?.sec || 0) : 0; }
+
+/* active-time counting: counts while a drill is open, the tab is visible and the learner did something in the last 90 s (or a speaking round is running) */
+const Clock = { block: null, force: false, lastInput: Date.now(), dirty: false, lastFlush: 0 };
+for (const ev of ["keydown", "pointerdown", "input"]) addEventListener(ev, () => { Clock.lastInput = Date.now(); }, { passive: true });
+setInterval(() => {
+  if (!Clock.block || document.visibilityState !== "visible") return;
+  if (!Clock.force && Date.now() - Clock.lastInput > 90000) return;
+  today()[Clock.block].sec += 1;
+  Clock.dirty = true;
+  if (Date.now() - Clock.lastFlush > 30000) flushDay();
+}, 1000);
+function flushDay() {
+  if (!Clock.dirty) return;
+  Clock.dirty = false; Clock.lastFlush = Date.now();
+  Store.putDay(dayKey());
+}
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") flushDay(); });
+
+/* ---------- speech ---------- */
+let voice = null;
+function pickVoice() {
+  if (!("speechSynthesis" in window)) return;
+  const vs = speechSynthesis.getVoices().filter((v) => /^en[-_]US/i.test(v.lang));
+  const prefs = [/Google US English/i, /Ava/i, /Samantha/i, /Allison/i, /Premium|Enhanced/i, /Natural/i];
+  voice = null;
+  for (const p of prefs) { voice = vs.find((v) => p.test(v.name)); if (voice) break; }
+  voice = voice || vs[0] || null;
+}
+if ("speechSynthesis" in window) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
+const canSpeak = "speechSynthesis" in window;
+function say(text, rate = 1) {
+  return new Promise((res) => {
+    if (!canSpeak) return res();
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-US"; if (voice) u.voice = voice; u.rate = rate;
+    u.onend = res; u.onerror = res;
+    speechSynthesis.speak(u);
+  });
+}
+let actx = null;
+function beep() {
+  try {
+    actx = actx || new AudioContext();
+    const o = actx.createOscillator(), g = actx.createGain();
+    o.frequency.value = 880; g.gain.value = 0.08;
+    o.connect(g).connect(actx.destination);
+    o.start(); g.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime + 0.5); o.stop(actx.currentTime + 0.5);
+  } catch (e) {}
+}
+
+/* ---------- Claude (sample capability) ---------- */
+let sampleFn = null;
+async function initSample() {
+  try { sampleFn = window.claude ? await window.claude.use("sample") : null; } catch (e) { sampleFn = null; }
+  document.querySelectorAll("[data-needs-claude]").forEach((el) => { el.hidden = !sampleFn; });
+}
+function sampleErr(e) {
+  const c = e && e.code;
+  if (c === "not_granted" || c === "sampling_disabled") { sampleFn = null; return "Claude の利用が許可されていないので、この機能は使えない"; }
+  if (c === "rate_limited") return "呼び出しが多すぎる。少し待ってからもう一度押す";
+  if (c === "invalid_json") return "返事の形式が崩れた。もう一度押す";
+  if (c === "cancelled") return "";
+  return "Claude から返事がもらえなかった。もう一度押す";
+}
+
+/* ---------- text comparison ---------- */
+function keyOf(w) { return (w.replace(/[’‘]/g, "'").toLowerCase().match(/[a-z0-9']+/g) || []).join("'").replace(/^'+|'+$/g, ""); }
+function wordsOf(s) { return s.trim().split(/\s+/).filter(Boolean).map((orig) => ({ orig, key: keyOf(orig) })).filter((w) => w.key); }
+function align(answer, typed) {
+  const a = wordsOf(answer), b = wordsOf(typed);
+  const n = a.length, m = b.length;
+  const dp = Array.from({ length: n + 1 }, () => new Uint16Array(m + 1));
+  for (let i = n - 1; i >= 0; i--) for (let j = m - 1; j >= 0; j--)
+    dp[i][j] = a[i].key === b[j].key ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
+  const ops = []; let i = 0, j = 0;
+  while (i < n && j < m) {
+    if (a[i].key === b[j].key) { ops.push({ t: "eq", w: a[i].orig, i }); i++; j++; }
+    else if (dp[i + 1][j] >= dp[i][j + 1]) { ops.push({ t: "miss", w: a[i].orig, i }); i++; }
+    else { ops.push({ t: "extra", w: b[j].orig }); j++; }
+  }
+  while (i < n) { ops.push({ t: "miss", w: a[i].orig, i }); i++; }
+  while (j < m) { ops.push({ t: "extra", w: b[j].orig }); j++; }
+  const miss = ops.filter((o) => o.t === "miss").length, extra = ops.filter((o) => o.t === "extra").length;
+  return { ops, miss, extra, words: a };
+}
+function renderDiff(ops) {
+  return h("p", { class: "diff" }, ops.map((o, k) => [k ? " " : "", h("span", { class: o.t }, o.w)]));
+}
+function bestAlign(answer, typed) {
+  const alts = answer.split(/\s*\|\s*/).filter(Boolean);
+  let best = null;
+  for (const alt of alts) { const r = align(alt, typed); r.answer = alt; if (!best || r.miss + r.extra < best.miss + best.extra) best = r; }
+  return best;
+}
+function suggestGrade(r) {
+  const errs = r.miss + r.extra;
+  if (errs === 0) return 3;
+  if (errs === 1 && r.words.length >= 4) return 2;
+  return 1;
+}
+function countWords(s) { return (s.match(/[A-Za-z0-9’']+/g) || []).length; }
+
+/* ---------- views ---------- */
+let view = "today";
+const nav = document.getElementById("nav");
+nav.addEventListener("click", (e) => { const b = e.target.closest("button[data-view]"); if (b) go(b.dataset.view); });
+function go(v, arg) {
+  if (Clock.block) flushDay();
+  Clock.block = null; Clock.force = false;
+  if (canSpeak) speechSynthesis.cancel();
+  stopSpeakTimer();
+  view = v;
+  if (gradeKeys) { document.removeEventListener("keydown", gradeKeys); gradeKeys = null; }
+  const tab = ["today", "cards", "stats"].includes(v) ? v : "today";
+  for (const b of nav.querySelectorAll("button")) { if (b.dataset.view === tab) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current"); }
+  main.replaceChildren();
+  ({ today: viewToday, cards: viewCards, stats: viewStats, review: viewReview, listen: viewListen, speak: viewSpeak }[v])(arg);
+  window.scrollTo({ top: 0 });
+}
+function backBtn() { return h("button", { type: "button", class: "btn ghost", onclick: () => go("today") }, "← 今日に戻る"); }
+
+/* ----- today ----- */
+function blockState(k, d) {
+  const sec = d[k].sec || 0, target = BLOCKS[k].min * 60;
+  if (sec >= target) return "done";
+  if (sec > 0) return "part";
+  return "none";
+}
+function dueCount() {
+  const now = Date.now(); let due = 0, fresh = 0;
+  for (const c of Store.cards.values()) { if (c.suspended) continue; if (!c.fsrs) fresh++; else if (new Date(c.fsrs.due).getTime() <= now) due++; }
+  return { due, fresh };
+}
+function viewToday() {
+  const d = today(), s = Store.settings;
+  const total = daySec(d), target = Object.values(BLOCKS).reduce((a, b) => a + b.min, 0) * 60;
+  const { due, fresh } = dueCount();
+  const newLeft = Math.max(0, (s.newPerDay || 8) - (d.review.newN || 0));
+  const nextBlock = ["review", "listen", "speak"].find((k) => blockState(k, d) !== "done") || null;
+
+  const bar = h("div", { class: "bar", role: "img", "aria-label": `今日 ${Math.floor(total / 60)} 分 / 目標 ${target / 60} 分` },
+    ["review", "listen", "speak"].map((k) => h("span", { style: `width:${Math.min(100, (d[k].sec / target) * 100)}%;background:${BLOCKS[k].color}` })));
+
+  const planIn = h("input", { id: "plan", type: "text", value: s.plan || "", placeholder: "例: 朝コーヒーを淹れたら、そのまま机で始める", "aria-label": "いつやるか" });
+  planIn.addEventListener("change", () => Store.putSettings({ ...Store.settings, plan: planIn.value.trim() }));
+
+  const hero = h("section", { class: "hero" },
+    h("div", { class: "label" }, fmtDay(dayKey()), "　今日の練習"),
+    h("div", { class: "hero-line" },
+      h("div", { class: "big" }, Math.floor(total / 60), h("small", {}, ` / ${target / 60} 分`)),
+      total >= MIN_DAY_SEC ? h("span", { class: "pill done" }, "今日の最低ライン 15 分はクリア") : h("span", { class: "pill" }, `最低ライン 15 分まであと ${Math.ceil((MIN_DAY_SEC - total) / 60)} 分`)),
+    bar,
+    h("div", { class: "plan" }, h("span", { class: "muted" }, "いつやる:"), planIn),
+    s.focus && s.focus.length ? h("div", { class: "row" }, h("span", { class: "label" }, "今週の重点"), s.focus.map((f) => h("span", { class: "pill focus" }, CAT_JA[f] || f))) : null,
+  );
+
+  const runs = h("div", { class: "sheet runs" }, ["review", "listen", "speak"].map((k, i) => {
+    const st = blockState(k, d), b = BLOCKS[k];
+    const mins = Math.floor((d[k].sec || 0) / 60);
+    let extra = "";
+    if (k === "review") extra = `今日の復習 ${due} 枚、新しいカード ${Math.min(newLeft, fresh)} 枚`;
+    if (k === "listen") extra = `今日 ${d.listen.n || 0} 文`;
+    if (k === "speak") extra = `今日 ${(d.speak.sessions || []).length} セット`;
+    return h("div", { class: "run" },
+      h("span", { class: "idx" }, i + 1),
+      h("h3", {}, h("span", { class: "dot", style: `background:${b.color}` }), b.name, h("span", { class: "num muted", style: "font-weight:400;font-size:13px" }, `${mins} / ${b.min} 分`),
+        st === "done" ? h("span", { class: "pill done" }, "済") : st === "part" ? h("span", { class: "pill part" }, "途中") : null),
+      h("p", {}, b.desc, " ", h("span", { class: "num" }, extra)),
+      h("button", { type: "button", class: "btn go" + (k === nextBlock ? " primary" : ""), onclick: () => go(k) }, st === "done" ? "もう少しやる" : "始める"));
+  }));
+
+  main.append(hero, runs, habitSection());
+}
+function habitSection() {
+  const s = Store.settings, tk = dayKey();
+  const start = s.startDate || tk;
+  const dayN = daysBetween(start, tk) + 1;
+  const cells = [];
+  let doneCount = 0;
+  for (let i = 0; i < 66; i++) {
+    const k = addDays(start, i);
+    const sec = daySec(Store.days.get(k));
+    let cls = "future";
+    if (k < tk) cls = sec >= MIN_DAY_SEC ? "done" : sec > 0 ? "part" : "miss";
+    else if (k === tk) cls = sec >= MIN_DAY_SEC ? "done" : sec > 0 ? "part" : "";
+    if (cls === "done") doneCount++;
+    cells.push(h("i", { class: cls + (k === tk ? " today" : ""), title: `${fmtDay(k)} ${Math.floor(sec / 60)} 分` }));
+  }
+  const st = streak();
+  return h("section", { class: "habit" },
+    h("div", { class: "row between" },
+      h("h2", { class: "sec" }, "習慣化の 66 日"),
+      h("span", { class: "num muted", style: "font-size:13px" }, dayN <= 66 ? `${dayN} 日目 / 66` : "66 日を過ぎた")),
+    h("div", { class: "grid66", role: "img", "aria-label": `66 日のうち ${doneCount} 日達成` }, cells),
+    h("div", { class: "legend" },
+      h("span", {}, h("i", { style: "background:var(--ok)" }), "15 分以上"),
+      h("span", {}, h("i", { style: "background:color-mix(in srgb, var(--ok) 35%, var(--rule))" }), "少しだけ"),
+      h("span", {}, h("i", { style: "box-shadow:inset 0 0 0 1px var(--rule)" }), "休み"),
+      h("span", { class: "num" }, `連続 ${st} 日`)),
+    h("p", { class: "muted", style: "margin:0;font-size:13px" }, "習慣になるまでの中央値は 66 日 (Lally 2010)。1 日休んでも影響はほぼないので、休みは 7 日に 1 回までなら連続が切れない扱いにしている。"));
+}
+function streak() {
+  const tk = dayKey();
+  let k = daySec(Store.days.get(tk)) >= MIN_DAY_SEC ? tk : addDays(tk, -1);
+  let n = 0, lastMiss = -99, i = 0;
+  const start = Store.settings.startDate || tk;
+  while (k >= start) {
+    if (daySec(Store.days.get(k)) >= MIN_DAY_SEC) n++;
+    else { if (i - lastMiss < 7) break; lastMiss = i; }
+    k = addDays(k, -1); i++;
+  }
+  return n;
+}
+
+/* ----- review ----- */
+let RQ = null, gradeKeys = null;
+function interleave(cards) {
+  const by = new Map();
+  for (const c of cards) { const g = c.kind + ":" + (c.category || ""); if (!by.has(g)) by.set(g, []); by.get(g).push(c); }
+  const groups = [...by.values()], out = [];
+  while (groups.some((g) => g.length)) for (const g of groups) if (g.length) out.push(g.shift());
+  return out;
+}
+function buildQueue() {
+  const now = Date.now();
+  const all = [...Store.cards.values()].filter((c) => !c.suspended);
+  const due = all.filter((c) => c.fsrs && new Date(c.fsrs.due).getTime() <= now).sort((a, b) => (a.fsrs.due < b.fsrs.due ? -1 : 1));
+  const d = today();
+  const allowNew = due.length > 60 ? 0 : Math.max(0, (Store.settings.newPerDay || 8) - (d.review.newN || 0));
+  const fresh = interleave(all.filter((c) => !c.fsrs).sort((a, b) => ((a.createdAt || "") < (b.createdAt || "") ? -1 : 1))).slice(0, allowNew);
+  return { items: [...due.map((c) => c.id), ...fresh.map((c) => c.id)], done: 0, total: due.length + fresh.length, backlog: due.length > 60 };
+}
+function viewReview() {
+  Clock.block = "review";
+  if (!scheduler) {
+    main.append(h("div", { class: "sheet empty" }, h("p", {}, "復習の計算ライブラリ (FSRS) を読み込めなかった。ページを開き直すと直ることが多い。")), backBtn());
+    return;
+  }
+  RQ = buildQueue();
+  renderReview();
+}
+function renderReview() {
+  main.replaceChildren();
+  const head = h("div", { class: "drill-head" },
+    h("h2", {}, h("span", { class: "dot", style: "background:var(--c-review)" }), "復習", h("span", { class: "num muted", style: "font-weight:400;font-size:14px" }, RQ.items.length ? `残り ${RQ.items.length}` : "")),
+    backBtn());
+  main.append(h("div", { class: "drill" }, head, h("div", { id: "rv" })));
+  const slot = document.getElementById("rv");
+  if (!RQ.items.length) {
+    const { fresh } = dueCount();
+    slot.append(h("div", { class: "sheet empty" },
+      h("p", {}, RQ.done ? `今日の復習は終わり。${RQ.done} 枚やった。` : "今やる復習カードはない。"),
+      h("p", {}, Store.cards.size === 0
+        ? "カードは、Claude との英作文で間違えた表現や、ディクテーションで聞き落とした所から自動で増える。今すぐ増やすなら「カード」タブから追加する。"
+        : fresh ? `新しいカードは 1 日 ${Store.settings.newPerDay || 8} 枚までにしている。残りの ${fresh} 枚は明日以降に出す。` : "次の復習が来るまで待つ。間隔をあけるほど長く覚えていられる。"),
+      h("div", { class: "row" }, h("button", { type: "button", class: "btn primary", onclick: () => go("listen") }, "次は聞く練習へ"))));
+    return;
+  }
+  if (RQ.backlog) slot.append(h("p", { class: "note" }, "復習がたまっているので、今日は新しいカードを出さない。"));
+  const card = Store.cards.get(RQ.items[0]);
+  if (!card) { RQ.items.shift(); return renderReview(); }
+  slot.append(reviewCard(card));
+}
+function reviewCard(card) {
+  const isVocab = card.kind === "vocab", isChunk = card.kind === "chunk";
+  const input = isVocab
+    ? h("input", { id: "rv-in", class: "answer-in", type: "text", autocomplete: "off", autocapitalize: "off", spellcheck: "false", "aria-label": "英語で答える" })
+    : h("textarea", { id: "rv-in", class: "answer-in", rows: "2", autocomplete: "off", autocapitalize: "off", spellcheck: "false", "aria-label": "正しい英文を書く" });
+  let face;
+  if (card.kind === "fix") face = [
+    h("div", { class: "row" }, h("span", { class: "label" }, "正しく直して書く"), card.category ? h("span", { class: "chip" }, CAT_JA[card.category] || card.category) : null, card.source === "starter" ? h("span", { class: "chip" }, "スターター") : null),
+    h("p", { class: "prompt-en" }, h("span", { class: "wrong" }, card.prompt)),
+  ];
+  else if (isVocab) face = [
+    h("div", { class: "row" }, h("span", { class: "label" }, "英語で言う"), card.source === "starter" ? h("span", { class: "chip" }, "スターター") : null),
+    h("p", { class: "prompt-ja" }, card.prompt),
+    card.example ? h("p", { class: "prompt-en", style: "font-size:20px" }, card.example) : null,
+  ];
+  else face = [
+    h("div", { class: "row" }, h("span", { class: "label" }, "聞いて、空いている所を書く")),
+    h("p", { class: "prompt-en" }, card.prompt),
+    h("div", { class: "row" },
+      h("button", { type: "button", class: "btn", onclick: () => say(card.full || card.prompt.replace("____", card.answer)) }, ICON.play(), "聞く"),
+      h("button", { type: "button", class: "btn", onclick: () => say(card.full || card.prompt.replace("____", card.answer), 0.72) }, ICON.slow(), "ゆっくり")),
+  ];
+  const checkBtn = h("button", { type: "button", class: "btn primary" }, "答え合わせ", h("kbd", { class: "num", style: "opacity:.7;font-size:11px" }, "Enter"));
+  const skipBtn = h("button", { type: "button", class: "btn ghost" }, "わからない");
+  const box = h("div", { class: "sheet card" }, face, input, h("div", { class: "row" }, checkBtn, skipBtn));
+  const check = (typed) => {
+    const r = bestAlign(card.answer, typed);
+    const sg = typed.trim() ? suggestGrade(r) : 1;
+    input.disabled = true; checkBtn.remove(); skipBtn.remove();
+    const ok = r.miss + r.extra === 0 && typed.trim();
+    box.append(
+      h("div", { class: "verdict " + (ok ? "ok" : "ng") }, ok ? "正解" : typed.trim() ? "ここが違う" : "答え"),
+      renderDiff(typed.trim() ? r.ops : r.ops.map((o) => ({ ...o, t: "eq" }))),
+      card.note ? h("p", { class: "note" }, card.note) : null,
+      h("div", { class: "row" }, h("button", { type: "button", class: "btn ghost", onclick: () => say(r.answer) }, ICON.play(), "正解を読み上げ")),
+      gradeRow(card, sg));
+  };
+  checkBtn.addEventListener("click", () => check(input.value));
+  skipBtn.addEventListener("click", () => check(""));
+  input.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); if (!input.disabled) check(input.value); } });
+  if (isChunk) setTimeout(() => say(card.full || card.prompt.replace("____", card.answer)), 250);
+  setTimeout(() => input.focus(), 30);
+  const dots = h("div", { class: "progress-dots", "aria-hidden": "true" }, Array.from({ length: Math.min(40, RQ.done + RQ.items.length) }, (_, i) => h("i", { class: i < RQ.done ? "on" : "" })));
+  return h("div", { class: "drill" }, dots, box);
+}
+function gradeRow(card, suggested) {
+  const now = new Date();
+  const live = liveCard(card.fsrs);
+  const prev = scheduler.repeat(live, now);
+  const labels = { 1: "もう一度", 2: "難しい", 3: "できた", 4: "簡単" };
+  const row = h("div", { class: "grades", role: "group", "aria-label": "どれくらい思い出せたか" });
+  for (const g of [1, 2, 3, 4]) {
+    const due = prev[g].card.due;
+    const b = h("button", { type: "button", class: g === suggested ? "suggest" : "" },
+      h("span", {}, labels[g]), h("span", { class: "num" }, fmtIvl(due - now)), h("kbd", {}, g));
+    b.addEventListener("click", () => rate(card, g));
+    row.append(b);
+  }
+  if (gradeKeys) document.removeEventListener("keydown", gradeKeys);
+  gradeKeys = (e) => {
+    if (view !== "review" || e.isComposing) return;
+    if (["1", "2", "3", "4"].includes(e.key)) { e.preventDefault(); rate(card, Number(e.key)); }
+    else if (e.key === "Enter" && !(document.activeElement && document.activeElement.tagName === "BUTTON")) { e.preventDefault(); rate(card, suggested); }
+  };
+  const handler = gradeKeys;
+  setTimeout(() => { if (gradeKeys === handler) document.addEventListener("keydown", handler); }, 50);
+  return h("div", { class: "section" }, h("span", { class: "label" }, "次に出すまでの間隔 (数字キーでも選べる)"), row);
+}
+function rate(card, g) {
+  if (!Store.cards.has(card.id) || RQ.items[0] !== card.id) return;
+  if (gradeKeys) { document.removeEventListener("keydown", gradeKeys); gradeKeys = null; }
+  const now = new Date();
+  const wasNew = !card.fsrs;
+  const res = scheduler.next(liveCard(card.fsrs), now, g);
+  const log = (card.log || []).concat([[now.toISOString(), g, res.log.state]]);
+  const updated = { ...card, fsrs: savedCard(res.card), log, lastRating: g };
+  Store.putCard(updated);
+  const d = today();
+  d.review.n += 1; if (g === 1) d.review.again += 1; if (wasNew) d.review.newN += 1;
+  Clock.dirty = true;
+  RQ.items.shift(); RQ.done += 1;
+  if (res.card.due - now < 20 * 60000) RQ.items.push(card.id);
+  if (RQ.done % 5 === 0) flushDay();
+  renderReview();
+}
+
+/* ----- listen (dictation) ----- */
+let LS = null;
+function sentencePool() {
+  const extra = (Store.settings.sentences || []).map((s, i) => ({ id: s.id || "g" + i, ...s }));
+  return [...extra, ...SENTENCES];
+}
+function viewListen() {
+  Clock.block = "listen";
+  const pool = sentencePool();
+  const cur = Store.settings.listenCursor || 0;
+  const picks = [];
+  for (let i = 0; i < 8; i++) picks.push(pool[(cur + i) % pool.length]);
+  LS = { list: picks, i: 0, startCursor: cur };
+  renderListen();
+}
+function renderListen() {
+  main.replaceChildren();
+  const head = h("div", { class: "drill-head" },
+    h("h2", {}, h("span", { class: "dot", style: "background:var(--c-listen)" }), "聞く", h("span", { class: "num muted", style: "font-weight:400;font-size:14px" }, LS.i < LS.list.length ? `${LS.i + 1} / ${LS.list.length}` : "")),
+    backBtn());
+  const wrap = h("div", { class: "drill" }, head);
+  main.append(wrap);
+  if (!canSpeak) {
+    wrap.append(h("div", { class: "sheet empty" }, h("p", {}, "このブラウザでは音声の読み上げが使えない。Chrome か Safari で開くと使える。")));
+    return;
+  }
+  if (LS.i >= LS.list.length) {
+    Store.putSettings({ ...Store.settings, listenCursor: (LS.startCursor + LS.list.length) % sentencePool().length });
+    flushDay();
+    wrap.append(h("div", { class: "sheet empty" },
+      h("p", {}, `${LS.list.length} 文やった。聞き落とした所は復習カードに入れてある。`),
+      h("p", {}, "時間が残っているなら、ここで英語の動画や Podcast に切り替える。9 割くらいわかるものを英語字幕で観る。観た時間は「聞いた時間を足す」で記録できる。"),
+      h("div", { class: "row" },
+        h("button", { type: "button", class: "btn primary", onclick: () => viewListen() }, "あと 8 文"),
+        h("button", { type: "button", class: "btn", onclick: () => go("speak") }, "話す練習へ")),
+      addListenMinutes()));
+    wrap.append(sourcesPanel());
+    return;
+  }
+  const s = LS.list[LS.i];
+  const input = h("textarea", { id: "ls-in", class: "answer-in", rows: "2", autocomplete: "off", autocapitalize: "off", spellcheck: "false", placeholder: "聞こえた英文をそのまま書く", "aria-label": "聞こえた英文" });
+  const playN = h("button", { type: "button", class: "btn primary" }, ICON.play(), "聞く");
+  const playS = h("button", { type: "button", class: "btn" }, ICON.slow(), "ゆっくり");
+  const play = async (rate) => { Clock.force = true; await say(s.text, rate); Clock.force = false; input.focus(); };
+  playN.addEventListener("click", () => play(1));
+  playS.addEventListener("click", () => play(0.72));
+  const checkBtn = h("button", { type: "button", class: "btn" }, "答え合わせ");
+  const box = h("div", { class: "sheet card" },
+    h("div", { class: "row" }, h("span", { class: "label" }, "ディクテーション"), h("span", { class: "muted", style: "font-size:13px" }, "Ctrl + Space でもう一度聞ける")),
+    h("div", { class: "row" }, playN, playS), input, h("div", { class: "row" }, checkBtn));
+  wrap.append(box);
+  const onKey = (e) => { if (e.ctrlKey && e.code === "Space") { e.preventDefault(); play(1); } };
+  input.addEventListener("keydown", onKey);
+  input.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); checkBtn.click(); } });
+  checkBtn.addEventListener("click", () => {
+    const r = align(s.text, input.value);
+    input.disabled = true; checkBtn.remove();
+    const d = today();
+    d.listen.n += 1; d.listen.missed += r.miss;
+    d.listen.ids = (d.listen.ids || []).concat(s.id).slice(-200);
+    Clock.dirty = true;
+    const spans = []; let curSpan = null;
+    for (const o of r.ops) {
+      if (o.t === "miss") { if (curSpan && o.i === curSpan.end + 1) curSpan.end = o.i; else { curSpan = { start: o.i, end: o.i }; spans.push(curSpan); } }
+    }
+    const usable = spans.filter((sp) => sp.end - sp.start < 4).sort((a, b) => (b.end - b.start) - (a.end - a.start));
+    let added = null;
+    if (usable.length && r.miss / r.words.length < 0.6) {
+      const sp = usable[0];
+      const ws = r.words.map((w) => w.orig);
+      const ans = ws.slice(sp.start, sp.end + 1).join(" ").replace(/[.,!?;:]+$/, "");
+      const promptWords = ws.slice(0, sp.start).concat(["____" + (ws[sp.end].match(/[.,!?;:]+$/)?.[0] || "")], ws.slice(sp.end + 1));
+      added = { id: "ch-" + crypto.randomUUID().slice(0, 12), kind: "chunk", prompt: promptWords.join(" "), answer: ans, full: s.text, note: s.note || "", source: "dictation", createdAt: new Date().toISOString() };
+      Store.putCard(added);
+    }
+    const shadow = h("button", { type: "button", class: "btn" }, "シャドーイングを 3 回");
+    shadow.addEventListener("click", async () => {
+      shadow.disabled = true; Clock.force = true;
+      for (let k = 0; k < 3; k++) { shadow.textContent = `音声に重ねて声に出す (${k + 1}/3)`; await say(s.text, 1); await new Promise((r2) => setTimeout(r2, 700)); }
+      Clock.force = false; shadow.textContent = "シャドーイング 3 回やった";
+    });
+    const next = h("button", { type: "button", class: "btn primary", onclick: () => { LS.i++; renderListen(); } }, "次の文", h("kbd", { class: "num", style: "opacity:.7;font-size:11px" }, "Enter"));
+    box.append(
+      h("div", { class: "verdict " + (r.miss + r.extra === 0 ? "ok" : "ng") }, r.miss + r.extra === 0 ? "全部聞き取れた" : `聞き落とし ${r.miss} 語`),
+      renderDiff(r.ops),
+      s.note ? h("p", { class: "note" }, s.note) : null,
+      added ? h("div", { class: "row" }, h("span", { class: "muted", style: "font-size:13px" }, `「${added.answer}」を復習カードに入れた`),
+        h("button", { type: "button", class: "btn ghost", onclick: (e) => { Store.delCard(added.id); e.target.closest(".row").replaceChildren(h("span", { class: "muted", style: "font-size:13px" }, "カードに入れるのをやめた")); } }, "取り消す")) : null,
+      h("div", { class: "row" }, next, shadow));
+    next.focus();
+  });
+  setTimeout(() => play(1), 300);
+}
+function addListenMinutes() {
+  const inp = h("input", { id: "ls-min", type: "number", min: "1", max: "180", class: "field num", style: "width:6rem", placeholder: "分" });
+  const btn = h("button", { type: "button", class: "btn" }, "聞いた時間を足す");
+  btn.addEventListener("click", () => {
+    const m = Math.round(Number(inp.value));
+    if (!(m > 0 && m <= 180)) { toast("1〜180 の分数で入れる"); return; }
+    today().listen.sec += m * 60; Clock.dirty = true; flushDay(); inp.value = ""; toast(`聞く時間に ${m} 分足した`);
+  });
+  return h("div", { class: "row" }, inp, btn);
+}
+function sourcesPanel() {
+  const ta = h("textarea", { id: "src-paste", class: "field en", rows: "4", placeholder: "観た動画のスクリプトや記事の英文を貼る。文ごとに分けて、次から出題する" });
+  const addBtn = h("button", { type: "button", class: "btn" }, "この英文を出題に足す");
+  addBtn.addEventListener("click", () => {
+    const parts = (ta.value.replace(/\s+/g, " ").match(/[^.!?]+[.!?]+/g) || []).map((x) => x.trim()).filter((x) => { const n = countWords(x); return n >= 5 && n <= 25; });
+    if (!parts.length) { toast("5〜25 語の文が見つからなかった"); return; }
+    addSentences(parts.map((text) => ({ text, note: "", src: "paste" })));
+    ta.value = "";
+  });
+  const genBtn = h("button", { type: "button", class: "btn", "data-needs-claude": "", hidden: !sampleFn }, "Claude に新しい 8 文を作ってもらう");
+  const out = h("p", { class: "muted", style: "margin:0;font-size:13px" });
+  genBtn.addEventListener("click", async () => {
+    if (!sampleFn) return;
+    genBtn.disabled = true; out.textContent = "作ってもらっている…";
+    const used = sentencePool().slice(0, 60).map((s) => s.text).join("\n");
+    try {
+      const arr = await sampleFn.json(
+        "Write 8 new sentences of natural spoken English that software engineers say in meetings, code reviews, pair programming or conference talks. Level: CEFR B1-B2. Each 8-16 words. Prefer sentences with strong connected speech (reductions like gonna, wanna, did you, should've, linking, flapped t). Avoid repeating these existing sentences:\n" + used +
+        "\n\nReply with only a JSON array of 8 objects: {\"text\": string, \"note\": string} where note is one short line in Japanese explaining the connected-speech point (how it actually sounds, in katakana if helpful).",
+        { modelTier: "quick", cache: false });
+      const items = (Array.isArray(arr) ? arr : []).filter((x) => x && typeof x.text === "string" && countWords(x.text) >= 4).map((x) => ({ text: x.text.trim(), note: String(x.note || "").trim(), src: "claude" }));
+      if (!items.length) throw { code: "invalid_json" };
+      addSentences(items);
+      out.textContent = "";
+    } catch (e) { out.textContent = sampleErr(e); }
+    genBtn.disabled = false;
+  });
+  return h("details", { class: "sheet", style: "padding:16px 18px" },
+    h("summary", {}, "出題する英文を足す"),
+    h("div", { class: "section", style: "margin-top:12px" }, ta, h("div", { class: "row" }, addBtn, genBtn), out));
+}
+function addSentences(items) {
+  const s = Store.settings;
+  const have = new Set(sentencePool().map((x) => keyOf(x.text.replace(/\s+/g, ""))));
+  const fresh = items.filter((x) => !have.has(keyOf(x.text.replace(/\s+/g, "")))).map((x) => ({ id: "u-" + crypto.randomUUID().slice(0, 10), ...x }));
+  const sentences = fresh.concat(s.sentences || []).slice(0, 400);
+  Store.putSettings({ ...s, sentences, listenCursor: 0 });
+  toast(`${fresh.length} 文を足した。次の「聞く」から先に出る`);
+}
+
+/* ----- speak (4/3/2) ----- */
+let SP = null, spTimer = null;
+function stopSpeakTimer() { if (spTimer) { clearInterval(spTimer); spTimer = null; } }
+function viewSpeak() {
+  Clock.block = "speak";
+  SP = { topic: null, round: 0, secs: [240, 180, 120], left: 240, running: false, texts: ["", "", ""], used: [0, 0, 0], done: false };
+  renderSpeakSetup();
+}
+function renderSpeakSetup() {
+  main.replaceChildren();
+  const last = [...Store.days.values()].sort((a, b) => (a.date < b.date ? -1 : 1)).flatMap((d) => d.speak?.sessions || []).slice(-1)[0];
+  let chosen = null;
+  const custom = h("input", { id: "sp-custom", type: "text", class: "field en", placeholder: "自分でお題を書く (英語)" });
+  const startBtn = h("button", { type: "button", class: "btn primary", disabled: true }, "1 回目 (4 分) を始める");
+  const list = h("div", { class: "topics", role: "group", "aria-label": "お題" }, TOPICS.map((t) => {
+    const b = h("button", { type: "button", "aria-pressed": "false" }, h("span", { class: "en" }, t.en), h("small", {}, t.ja));
+    b.addEventListener("click", () => { list.querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", "false")); b.setAttribute("aria-pressed", "true"); chosen = t.en; custom.value = ""; startBtn.disabled = false; });
+    return b;
+  }));
+  custom.addEventListener("input", () => { if (custom.value.trim()) { list.querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", "false")); chosen = custom.value.trim(); } startBtn.disabled = !chosen; });
+  startBtn.addEventListener("click", () => { SP.topic = chosen; renderSpeakRound(); });
+  main.append(h("div", { class: "drill" },
+    h("div", { class: "drill-head" }, h("h2", {}, h("span", { class: "dot", style: "background:var(--c-speak)" }), "話す: 4/3/2"), backBtn()),
+    h("div", { class: "sheet card" },
+      h("p", { style: "margin:0" }, "同じ話を 4 分、3 分、2 分で 3 回続けて話す。回を追うごとに同じ内容を短く速く言うことになり、言いよどみが減る。伸びるのは流暢さで、正確さは別に直す。"),
+      h("p", { class: "note" }, "このページではマイクが使えない。話すときは入力欄にカーソルを置き、macOS の音声入力 (fn キーを 2 回) で言葉を流し込む。語数から wpm を出し、最後の回は Claude に見てもらえる。入力しなくても時間は記録される。"),
+      last ? h("p", { class: "muted", style: "margin:0;font-size:13px" }, "前回のお題: ", h("span", { class: "en" }, last.topic)) : null,
+      h("span", { class: "label" }, "お題を選ぶ。前回と同じお題を数日おいて繰り返すのも効く"),
+      last ? h("button", { type: "button", class: "btn", style: "align-self:flex-start", onclick: () => { SP.topic = last.topic; renderSpeakRound(); } }, "前回と同じお題で始める") : null,
+      list, custom, h("div", { class: "row" }, startBtn))));
+}
+function mmss(s) { return `${Math.floor(s / 60)}:${pad(Math.max(0, Math.floor(s % 60)))}`; }
+function renderSpeakRound() {
+  main.replaceChildren();
+  stopSpeakTimer();
+  const r = SP.round;
+  SP.left = SP.secs[r] - SP.used[r];
+  const clock = h("div", { class: "clock", "aria-live": "off" }, mmss(SP.left));
+  const ta = h("textarea", { id: "sp-text-" + r, class: "answer-in", rows: "6", placeholder: "ここにカーソルを置いて fn 2 回で音声入力。そのまま話し続ける", "aria-label": `${r + 1} 回目に話した内容` });
+  ta.value = SP.texts[r];
+  ta.addEventListener("input", () => { SP.texts[r] = ta.value; wc.textContent = `${countWords(ta.value)} 語`; });
+  const wc = h("span", { class: "num muted" }, `${countWords(ta.value)} 語`);
+  const toggle = h("button", { type: "button", class: "btn primary" }, SP.used[r] ? "再開" : "スタート");
+  const nextBtn = h("button", { type: "button", class: "btn" }, r < 2 ? `${r + 2} 回目 (${SP.secs[r + 1] / 60} 分) へ` : "終わって結果を見る");
+  const pause = () => { SP.running = false; stopSpeakTimer(); Clock.force = false; toggle.textContent = "再開"; };
+  toggle.addEventListener("click", () => {
+    if (SP.running) return pause();
+    SP.running = true; Clock.force = true; toggle.textContent = "一時停止"; ta.focus();
+    const t0 = Date.now(), used0 = SP.used[r];
+    spTimer = setInterval(() => {
+      SP.used[r] = Math.min(SP.secs[r], used0 + (Date.now() - t0) / 1000);
+      SP.left = SP.secs[r] - SP.used[r];
+      clock.textContent = mmss(Math.ceil(SP.left));
+      if (SP.left <= 0) { pause(); beep(); toggle.disabled = true; toggle.textContent = "時間"; nextBtn.classList.add("primary"); nextBtn.focus(); }
+    }, 250);
+  });
+  nextBtn.addEventListener("click", () => {
+    pause();
+    if (r < 2) { SP.round++; renderSpeakRound(); } else finishSpeak();
+  });
+  const rounds = h("div", { class: "rounds" }, SP.secs.map((s, i) => h("div", { class: i === r ? "cur" : "" },
+    h("span", { class: "label" }, `${i + 1} 回目`), h("b", {}, `${s / 60}:00`),
+    h("span", { class: "num muted", style: "font-size:12px" }, SP.used[i] ? `${countWords(SP.texts[i])} 語` : i < r ? "—" : ""))));
+  main.append(h("div", { class: "drill" },
+    h("div", { class: "drill-head" }, h("h2", {}, h("span", { class: "dot", style: "background:var(--c-speak)" }), `話す: ${r + 1} 回目`), backBtn()),
+    h("div", { class: "sheet card" },
+      h("p", { class: "prompt-en", style: "font-size:20px" }, SP.topic),
+      rounds,
+      h("div", { class: "row between" }, clock, h("div", { class: "row" }, toggle, nextBtn)),
+      ta, h("div", { class: "row between" }, wc, h("span", { class: "muted", style: "font-size:12.5px" }, r === 0 ? "まずは中身を思い出しながら、止まらずに話す" : "前の回と同じ話を、短い時間で全部言い切る")))));
+}
+function finishSpeak() {
+  const rounds = SP.secs.map((s, i) => ({ sec: Math.round(SP.used[i]), words: countWords(SP.texts[i]) }));
+  const session = { topic: SP.topic, at: new Date().toISOString(), rounds };
+  const d = today(); d.speak.sessions = (d.speak.sessions || []).concat([session]); Clock.dirty = true; flushDay();
+  SP.done = true;
+  main.replaceChildren();
+  const wpm = (r) => (r.sec >= 20 && r.words ? Math.round(r.words / (r.sec / 60)) : null);
+  const table = h("div", { class: "rounds" }, rounds.map((r, i) => h("div", {},
+    h("span", { class: "label" }, `${i + 1} 回目 ${mmss(r.sec)}`),
+    h("b", {}, wpm(r) != null ? `${wpm(r)} wpm` : "—"),
+    h("span", { class: "num muted", style: "font-size:12px" }, `${r.words} 語`))));
+  const last = SP.texts[2].trim();
+  const fbSlot = h("div", { class: "fb" });
+  const fbBtn = h("button", { type: "button", class: "btn primary", "data-needs-claude": "", hidden: !sampleFn || countWords(last) < 15 }, "3 回目を Claude に見てもらう");
+  fbBtn.addEventListener("click", () => feedback(last, fbSlot, fbBtn));
+  main.append(h("div", { class: "drill" },
+    h("div", { class: "drill-head" }, h("h2", {}, h("span", { class: "dot", style: "background:var(--c-speak)" }), "話す: 結果"), backBtn()),
+    h("div", { class: "sheet card" },
+      h("p", { class: "prompt-en", style: "font-size:20px" }, SP.topic),
+      table,
+      h("p", { class: "note" }, "wpm は音声入力の語数から出しているので、実際より少し低く出る。比べる相手は過去の自分。英語のくだけた会話は 1 分あたり 190〜230 語、講義は 125〜160 語くらい。"),
+      countWords(last) < 15 ? h("p", { class: "muted", style: "margin:0;font-size:13px" }, "3 回目の文字が少ないので、Claude の添削は出さない。次は音声入力で流し込んでみる。") : null,
+      h("div", { class: "row" }, fbBtn, h("button", { type: "button", class: "btn", onclick: () => go("today") }, "今日に戻る")),
+      fbSlot)));
+}
+async function feedback(text, slot, btn) {
+  if (!sampleFn) return;
+  btn.disabled = true;
+  slot.replaceChildren(h("p", { class: "thinking", style: "margin:0" }, "Claude が読んでいる…"));
+  const focus = (Store.settings.focus || []).join(", ") || "none set";
+  const prompt = "You are an English tutor for a Japanese software engineer. Below is a speech-to-text transcript of their unscripted 2-minute talk. Ignore punctuation, capitalisation and obvious speech-recognition glitches.\n\nRules:\n" +
+    "- Report at most 5 errors that would confuse a listener or that a fluent speaker would not say. Skip style preferences. Do not rewrite the talk.\n" +
+    "- Give priority to these focus categories: " + focus + ".\n" +
+    "- For each error: \"quote\" = the exact words from the transcript (at most 10 words), \"category\" = one of " + CATS.join(", ") + ", \"hint_ja\" = a short hint in Japanese that helps them fix it themselves WITHOUT giving the answer, \"correction\" = the minimal corrected version of the quote.\n" +
+    "- \"good_ja\" = one short sentence in Japanese naming one thing they did well.\n" +
+    "Reply with only JSON: {\"errors\": [...], \"good_ja\": \"...\"}\n\nTopic: " + SP.topic + "\n\nTranscript:\n" + text.slice(0, 6000);
+  try {
+    const res = await sampleFn.json(prompt, { cache: false });
+    const errs = (Array.isArray(res?.errors) ? res.errors : []).filter((e) => e && e.quote && e.correction).slice(0, 5);
+    slot.replaceChildren(
+      res?.good_ja ? h("p", { style: "margin:0" }, h("b", {}, "よかった所: "), String(res.good_ja)) : null,
+      errs.length ? h("p", { class: "muted", style: "margin:0;font-size:13px" }, "まず自分で直して書く。答えはそのあとで見る。") : h("p", { style: "margin:0" }, "大きな間違いは見つからなかった。"),
+      errs.map((e) => fbItem(e)));
+  } catch (e) {
+    slot.replaceChildren(h("p", { class: "muted", style: "margin:0" }, sampleErr(e)));
+  }
+  btn.disabled = false;
+}
+function fbItem(e) {
+  const inp = h("input", { type: "text", class: "field en", placeholder: "直した形を書く", "aria-label": "直した形" });
+  const out = h("div", { class: "section" });
+  const show = h("button", { type: "button", class: "btn" }, "答えを見る");
+  const cat = CATS.includes(e.category) ? e.category : "other";
+  show.addEventListener("click", () => {
+    show.remove();
+    const r = bestAlign(String(e.correction), inp.value);
+    const addBtn = h("button", { type: "button", class: "btn ghost" }, "復習カードにする");
+    addBtn.addEventListener("click", () => {
+      Store.putCard({ id: "sp-" + crypto.randomUUID().slice(0, 12), kind: "fix", prompt: String(e.quote), answer: String(e.correction), category: cat, note: String(e.hint_ja || ""), source: "speak", createdAt: new Date().toISOString() });
+      addBtn.replaceWith(h("span", { class: "muted", style: "font-size:13px" }, "カードに入れた"));
+    });
+    out.append(
+      inp.value.trim() ? renderDiff(r.ops) : h("p", { class: "diff" }, String(e.correction)),
+      h("div", { class: "row" }, addBtn));
+  });
+  return h("div", { class: "fb-item" },
+    h("div", { class: "row" }, h("span", { class: "chip" }, CAT_JA[cat]), h("span", { class: "quote" }, h("mark", {}, String(e.quote)))),
+    e.hint_ja ? h("p", { class: "note" }, String(e.hint_ja)) : null,
+    h("div", { class: "row", style: "flex-wrap:nowrap" }, inp, show), out);
+}
+
+/* ----- cards ----- */
+function viewCards() {
+  const all = [...Store.cards.values()].sort((a, b) => ((a.createdAt || "") < (b.createdAt || "") ? 1 : -1));
+  const kindJa = { fix: "直す", vocab: "単語", chunk: "聞き取り" };
+  const q = h("input", { id: "cards-q", type: "search", class: "field", placeholder: "カードを探す" });
+  const listBox = h("div", { class: "sheet list" });
+  const draw = () => {
+    const term = q.value.trim().toLowerCase();
+    const rows = all.filter((c) => !term || (c.prompt + " " + c.answer + " " + (c.note || "")).toLowerCase().includes(term));
+    listBox.replaceChildren(...(rows.length ? rows.slice(0, 300).map((c) => cardRow(c, kindJa)) : [h("div", { class: "empty" }, h("p", {}, all.length ? "見つからなかった。" : "まだカードがない。下のフォームか、Markdown の表の貼り付けで追加する。Claude との英作文で間違えた表現も、ここに入る。"))]));
+  };
+  q.addEventListener("input", draw);
+  draw();
+  const states = { new: 0, learning: 0, review: 0 };
+  for (const c of all) { if (!c.fsrs) states.new++; else if (c.fsrs.state === 2) states.review++; else states.learning++; }
+  main.append(h("div", { class: "drill" },
+    h("div", { class: "drill-head" }, h("h2", {}, "カード", h("span", { class: "num muted", style: "font-weight:400;font-size:14px" }, `${all.length} 枚 (未学習 ${states.new} / 学習中 ${states.learning} / 定着 ${states.review})`))),
+    q, listBox, addForm(), importForm(), settingsForm()));
+}
+function cardRow(c, kindJa) {
+  const del = h("button", { type: "button", class: "btn ghost", style: "font-size:13px" }, "削除");
+  let armed = false;
+  del.addEventListener("click", () => {
+    if (!armed) { armed = true; del.textContent = "本当に削除"; del.style.color = "var(--bad)"; setTimeout(() => { armed = false; del.textContent = "削除"; del.style.color = ""; }, 3000); return; }
+    Store.delCard(c.id); del.closest(".item").remove();
+  });
+  const dueTxt = !c.fsrs ? "未学習" : (() => { const ms = new Date(c.fsrs.due) - Date.now(); return ms <= 0 ? "今日出る" : `${fmtIvl(ms)}後`; })();
+  return h("div", { class: "item" },
+    h("div", { class: "section", style: "gap:2px" },
+      c.kind === "vocab" ? h("span", {}, c.prompt, " → ", h("b", { class: "en" }, c.answer)) : h("span", { class: "en" }, h("span", { class: c.kind === "fix" ? "wrong" : "" }, c.prompt), " → ", h("b", {}, c.answer)),
+      h("div", { class: "meta" }, h("span", { class: "chip" }, kindJa[c.kind] || c.kind), c.category ? h("span", {}, CAT_JA[c.category] || c.category) : null, h("span", { class: "num" }, dueTxt), c.source ? h("span", {}, c.source === "starter" ? "スターター" : c.source) : null)),
+    del);
+}
+function addForm() {
+  const kind = h("select", { id: "add-kind" }, h("option", { value: "fix" }, "直す (間違えた英文 → 正しい英文)"), h("option", { value: "vocab" }, "単語 (意味 → 英語)"));
+  const p = h("input", { id: "add-prompt", type: "text", required: true });
+  const a = h("input", { id: "add-answer", type: "text", required: true });
+  const ex = h("input", { id: "add-example", type: "text", placeholder: "単語のときだけ。単語の所は ____ にする" });
+  const cat = h("select", { id: "add-cat" }, CATS.map((c) => h("option", { value: c }, CAT_JA[c])));
+  const note = h("input", { id: "add-note", type: "text" });
+  const pl = h("span", {}, "間違えた英文"), al = h("span", {}, "正しい英文");
+  kind.addEventListener("change", () => { const v = kind.value === "vocab"; pl.textContent = v ? "意味 (日本語)" : "間違えた英文"; al.textContent = v ? "英語" : "正しい英文"; });
+  const form = h("form", { class: "sheet add" },
+    h("h2", { class: "sec" }, "カードを足す"),
+    h("label", {}, "種類", kind), h("label", {}, pl, p), h("label", {}, al, a),
+    h("label", {}, "例文", ex), h("label", {}, "カテゴリ", cat), h("label", {}, "メモ", note),
+    h("div", { class: "row" }, h("button", { type: "submit", class: "btn primary" }, "追加")));
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    if (!p.value.trim() || !a.value.trim()) return;
+    Store.putCard({ id: "m-" + crypto.randomUUID().slice(0, 12), kind: kind.value, prompt: p.value.trim(), answer: a.value.trim(), example: ex.value.trim() || null, category: kind.value === "fix" ? cat.value : null, note: note.value.trim(), source: "manual", createdAt: new Date().toISOString() });
+    toast("追加した"); go("cards");
+  });
+  return form;
+}
+function parseTables(md) {
+  const out = [];
+  let header = null;
+  for (const line of md.split(/\r?\n/)) {
+    const t = line.trim();
+    if (!t.startsWith("|")) { header = null; continue; }
+    const cells = t.replace(/^\||\|$/g, "").split("|").map((c) => c.trim().replace(/^`|`$/g, ""));
+    if (cells.every((c) => /^:?-{3,}:?$/.test(c))) continue;
+    if (!header) { header = cells.map((c) => c.toLowerCase()); continue; }
+    const col = (...names) => { const i = header.findIndex((x) => names.some((n) => x.includes(n))); return i >= 0 ? cells[i] || "" : ""; };
+    if (header.some((x) => x.includes("mistake") || x.includes("間違い"))) {
+      const prompt = col("mistake", "間違い"), answer = col("correction", "正しい");
+      if (prompt && answer) out.push({ kind: "fix", prompt, answer, category: (col("category", "カテゴリ") || "other").toLowerCase(), note: col("note", "ポイント", "メモ") });
+    } else if (header.some((x) => x.includes("word") || x.includes("単語"))) {
+      const word = col("word", "単語"), meaning = col("meaning", "意味"), example = col("example", "例文");
+      if (word && meaning) {
+        const esc = word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        out.push({ kind: "vocab", prompt: meaning, answer: word, example: example ? example.replace(new RegExp(esc, "ig"), "____") : null, note: "" });
+      }
+    }
+  }
+  return out;
+}
+function importForm() {
+  const ta = h("textarea", { id: "imp-md", class: "field", rows: "5", placeholder: "phrases.md や vocab.md の表をそのまま貼る" });
+  const btn = h("button", { type: "button", class: "btn" }, "表からカードを作る");
+  btn.addEventListener("click", () => {
+    const rows = parseTables(ta.value);
+    const have = new Set([...Store.cards.values()].map((c) => c.kind + "|" + c.prompt + "|" + c.answer));
+    let n = 0;
+    for (const r of rows) {
+      if (have.has(r.kind + "|" + r.prompt + "|" + r.answer)) continue;
+      if (r.kind === "fix" && !CATS.includes(r.category)) r.category = "other";
+      Store.putCard({ id: "i-" + crypto.randomUUID().slice(0, 12), ...r, source: "import", createdAt: new Date().toISOString() }); n++;
+    }
+    toast(rows.length ? `${n} 枚追加した (重複 ${rows.length - n} 枚は飛ばした)` : "表が見つからなかった。ヘッダ行も一緒に貼る");
+    if (n) go("cards");
+  });
+  return h("details", { class: "sheet", style: "padding:16px 18px" }, h("summary", {}, "Markdown の表から取り込む"),
+    h("div", { class: "section", style: "margin-top:12px" }, ta, h("div", { class: "row" }, btn)));
+}
+function settingsForm() {
+  const s = Store.settings;
+  const np = h("input", { id: "set-new", type: "number", min: "0", max: "30", class: "field num", style: "width:6rem", value: String(s.newPerDay ?? 8) });
+  np.addEventListener("change", () => { const v = Math.max(0, Math.min(30, Math.round(Number(np.value) || 0))); Store.putSettings({ ...Store.settings, newPerDay: v }); toast(`新しいカードは 1 日 ${v} 枚まで`); });
+  return h("details", { class: "sheet", style: "padding:16px 18px" }, h("summary", {}, "設定"),
+    h("div", { class: "section", style: "margin-top:12px" },
+      h("label", { class: "row" }, "新しいカードは 1 日", np, "枚まで"),
+      h("p", { class: "muted", style: "margin:0;font-size:13px" }, "1 日 10 分に収めるなら 5〜10 枚が目安。復習が 60 枚を超えてたまった日は、新しいカードを出さない。")));
+}
+
+/* ----- stats ----- */
+function viewStats() {
+  const days = [...Store.days.values()].sort((a, b) => (a.date < b.date ? -1 : 1));
+  const totalSec = days.reduce((a, d) => a + daySec(d), 0);
+  const hours = totalSec / 3600;
+  const last30 = days.filter((d) => daysBetween(d.date, dayKey()) < 30);
+  const n30 = last30.reduce((a, d) => a + (d.review?.n || 0), 0), again30 = last30.reduce((a, d) => a + (d.review?.again || 0), 0);
+  const stats = h("div", { class: "sheet stats" },
+    h("div", { class: "stat" }, h("span", { class: "label" }, "累計"), h("b", {}, hours.toFixed(1), h("small", { class: "muted", style: "font-size:13px" }, " 時間"))),
+    h("div", { class: "stat" }, h("span", { class: "label" }, "連続"), h("b", {}, streak(), h("small", { class: "muted", style: "font-size:13px" }, " 日"))),
+    h("div", { class: "stat" }, h("span", { class: "label" }, "30 日の正答率"), h("b", {}, n30 ? Math.round((1 - again30 / n30) * 100) + "%" : "—")),
+    h("div", { class: "stat" }, h("span", { class: "label" }, "カード"), h("b", {}, Store.cards.size)));
+  const goalPct = Math.min(100, (hours / 220) * 100);
+  const goal = h("div", { class: "sheet chart" },
+    h("div", { class: "row between" }, h("h2", { class: "sec" }, "B1 から B2 まで"), h("span", { class: "num muted", style: "font-size:13px" }, `${hours.toFixed(1)} / 180〜260 時間`)),
+    h("div", { class: "bar" }, h("span", { style: `width:${goalPct}%;background:var(--cobalt)` })),
+    h("p", { class: "muted", style: "margin:0;font-size:13px" }, "Cambridge の目安では、CEFR を 1 段上げるのに指導つきで 180〜260 時間かかる。自習時間への換算はあくまで目安。"));
+  main.append(h("div", { class: "drill" }, h("div", { class: "drill-head" }, h("h2", {}, "記録")), stats, goal, minutesChart(), wpmChart()));
+}
+function minutesChart() {
+  const W = 640, H = 170, L = 30, B = 22, T = 8;
+  const keys = []; for (let i = 27; i >= 0; i--) keys.push(addDays(dayKey(), -i));
+  const vals = keys.map((k) => { const d = Store.days.get(k); return { k, r: (d?.review?.sec || 0) / 60, l: (d?.listen?.sec || 0) / 60, s: (d?.speak?.sec || 0) / 60 }; });
+  const maxV = Math.max(45, ...vals.map((v) => v.r + v.l + v.s));
+  const top = Math.ceil(maxV / 15) * 15;
+  const y = (v) => H - B - (v / top) * (H - B - T);
+  const bw = (W - L) / keys.length;
+  const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "直近 28 日の練習時間" });
+  for (let g = 0; g <= top; g += 15) { svg.append(svgEl("line", { class: "grid", x1: L, x2: W, y1: y(g), y2: y(g) }), svgEl("text", { x: L - 6, y: y(g) + 3, "text-anchor": "end" }, g)); }
+  svg.append(svgEl("line", { x1: L, x2: W, y1: y(15), y2: y(15), stroke: "var(--ok)", "stroke-dasharray": "3 3", "stroke-width": 1 }));
+  vals.forEach((v, i) => {
+    const x = L + i * bw + bw * 0.18, w = bw * 0.64;
+    let acc = 0;
+    for (const [key, col] of [["r", "var(--c-review)"], ["l", "var(--c-listen)"], ["s", "var(--c-speak)"]]) {
+      if (v[key] > 0) { svg.append(svgEl("rect", { x, y: y(acc + v[key]), width: w, height: Math.max(0.5, y(acc) - y(acc + v[key])), fill: col })); acc += v[key]; }
+    }
+    if (i % 7 === 0 || i === vals.length - 1) svg.append(svgEl("text", { x: x + w / 2, y: H - 6, "text-anchor": "middle" }, v.k.slice(5).replace("-", "/")));
+  });
+  return h("div", { class: "sheet chart" },
+    h("div", { class: "row between" }, h("h2", { class: "sec" }, "直近 28 日 (分)"),
+      h("div", { class: "legend" }, ["review", "listen", "speak"].map((k) => h("span", {}, h("i", { style: `background:${BLOCKS[k].color}` }), BLOCKS[k].name)), h("span", {}, h("i", { style: "background:transparent;border-top:1px dashed var(--ok);height:0;border-radius:0" }), "15 分"))),
+    h("div", { style: "overflow-x:auto" }, svg));
+}
+function wpmChart() {
+  const pts = [];
+  for (const d of [...Store.days.values()].sort((a, b) => (a.date < b.date ? -1 : 1)))
+    for (const s of d.speak?.sessions || []) {
+      const r1 = s.rounds?.[0], r3 = s.rounds?.[2];
+      const w = (r) => (r && r.sec >= 20 && r.words ? r.words / (r.sec / 60) : null);
+      if (w(r3) != null || w(r1) != null) pts.push({ date: d.date, w1: w(r1), w3: w(r3) });
+    }
+  const box = h("div", { class: "sheet chart" }, h("h2", { class: "sec" }, "話す速さ (wpm)"));
+  if (pts.length < 2) {
+    box.append(h("p", { class: "muted", style: "margin:0;font-size:13px" }, pts.length ? "あと 1 回 4/3/2 をやると、推移が線で出る。" : "4/3/2 を音声入力つきでやると、1 回目と 3 回目の wpm がここに並ぶ。"));
+    return box;
+  }
+  const W = 640, H = 170, L = 34, B = 20, T = 10, R = 10;
+  const vs = pts.flatMap((p) => [p.w1, p.w3]).filter((v) => v != null);
+  const lo = Math.max(0, Math.floor((Math.min(...vs) - 10) / 20) * 20), hi = Math.ceil((Math.max(...vs) + 10) / 20) * 20;
+  const x = (i) => L + (i / (pts.length - 1)) * (W - L - R);
+  const y = (v) => H - B - ((v - lo) / (hi - lo)) * (H - B - T);
+  const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "4/3/2 の wpm の推移" });
+  for (let g = lo; g <= hi; g += 20) svg.append(svgEl("line", { class: "grid", x1: L, x2: W - R, y1: y(g), y2: y(g) }), svgEl("text", { x: L - 6, y: y(g) + 3, "text-anchor": "end" }, g));
+  for (const [key, col, dash] of [["w1", "var(--muted)", "4 3"], ["w3", "var(--c-speak)", ""]]) {
+    const seg = pts.map((p, i) => (p[key] != null ? `${x(i)},${y(p[key])}` : null)).filter(Boolean);
+    if (seg.length > 1) svg.append(svgEl("polyline", { points: seg.join(" "), fill: "none", stroke: col, "stroke-width": 2, "stroke-dasharray": dash }));
+    pts.forEach((p, i) => { if (p[key] != null) svg.append(svgEl("circle", { cx: x(i), cy: y(p[key]), r: i === pts.length - 1 ? 4 : 2.5, fill: col })); });
+  }
+  svg.append(svgEl("text", { x: L, y: H - 4 }, pts[0].date.slice(5).replace("-", "/")), svgEl("text", { x: W - R, y: H - 4, "text-anchor": "end" }, pts[pts.length - 1].date.slice(5).replace("-", "/")));
+  box.append(h("div", { class: "legend" }, h("span", {}, h("i", { style: "background:var(--muted)" }), "1 回目 (4 分)"), h("span", {}, h("i", { style: "background:var(--c-speak)" }), "3 回目 (2 分)")), h("div", { style: "overflow-x:auto" }, svg));
+  return box;
+}
+
+/* ---------- boot ---------- */
+(async () => {
+  await Store.init();
+  if (!F) setStatus("復習の計算ライブラリを読み込めなかった。開き直すと直ることが多い", true);
+  go("today");
+  initSample();
+})();
+</script>

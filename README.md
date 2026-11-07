@@ -22,6 +22,7 @@ The rules follow second language acquisition research rather than guesswork: sel
 | `phrases.md` | Mistake → correction table, with a count per mistake |
 | `vocab.md` | Words and idioms you want to keep |
 | `tech/` | Phrases for GitHub issues, PRs and review replies |
+| `app/rounds.html` | English Rounds, a drill app for daily practice (see below) |
 | `docs/research-ja.md` | The SLA research these rules are built on (Japanese) |
 
 ## Getting started
@@ -30,6 +31,17 @@ The rules follow second language acquisition research rather than guesswork: sel
 2. Clone it and run `claude` inside.
 3. Set your native language at the top of `CLAUDE.md` (default: Japanese).
 4. Write something in English.
+
+## Drill app
+
+`app/rounds.html` is a single-page app built to run as a [Claude artifact](https://claude.ai). Ask Claude Code to publish it as an artifact with the `db`, `user` and `sample` capabilities. Opened outside claude.ai it still works and saves to the browser.
+
+- **Review**: spaced repetition with FSRS ([ts-fsrs](https://github.com/open-spaced-repetition/ts-fsrs) 5.4.2). Every card asks you to produce the English, never to pick it.
+- **Listen**: dictation sentence by sentence. Words you miss become review cards automatically.
+- **Speak**: the 4/3/2 fluency drill. Talk on one topic for 4, 3, then 2 minutes, dictate into the box, and track words per minute. Claude marks errors with hints first and shows the correction only after you try.
+- **Habit**: a 66-day grid and a 15-minute daily minimum. No XP, leagues or streak-loss nags.
+
+Artifact frames block the microphone, so the app has no recording. Use your OS dictation (on macOS, press fn twice) to get speech into the text box.
 
 ## License
 
