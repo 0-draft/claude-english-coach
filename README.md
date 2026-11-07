@@ -24,6 +24,7 @@ The rules follow second language acquisition research rather than guesswork: sel
 | `tech/` | Phrases for GitHub issues, PRs and review replies |
 | `app/rounds.html` | English Rounds, a drill app for daily practice (see below) |
 | `docs/research-ja.md` | The SLA research these rules are built on (Japanese) |
+| `docs/apps-research-ja.md` | What was taken from Duolingo-style apps and why (Japanese) |
 
 ## Getting started
 
@@ -38,8 +39,12 @@ The rules follow second language acquisition research rather than guesswork: sel
 
 - **Review**: spaced repetition with FSRS ([ts-fsrs](https://github.com/open-spaced-repetition/ts-fsrs) 5.4.2). Every card asks you to produce the English, never to pick it.
 - **Listen**: dictation sentence by sentence. Words you miss become review cards automatically.
-- **Speak**: the 4/3/2 fluency drill. Talk on one topic for 4, 3, then 2 minutes, dictate into the box, and track words per minute. Claude marks errors with hints first and shows the correction only after you try.
-- **Habit**: a 66-day grid and a 15-minute daily minimum. No XP, leagues or streak-loss nags.
+- **Speak**: role-play work conversations with Claude (stand-up, PR walkthrough, incident report) and track how many words you speak, or run the 4/3/2 fluency drill. Claude marks errors with hints first and shows the correction only after you try.
+- **Adaptive dictation**: playback speed moves up or down to keep you at 80-90% of words correct.
+- **Habit**: a 66-day grid. Five minutes keeps the streak, 15 minutes meets the goal, and one missed day a week is forgiven. No XP, leagues, hearts or streak-loss nags.
+- **Monthly check**: the same listening and 2-minute speaking test every month, so progress is measured as ability rather than points.
+
+`docs/apps-research-ja.md` lists which Duolingo-style mechanics made it in, which did not, and the evidence for each.
 
 Artifact frames block the microphone, so the app has no recording. Use your OS dictation (on macOS, press fn twice) to get speech into the text box.
 

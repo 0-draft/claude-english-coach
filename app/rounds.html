@@ -218,6 +218,19 @@ h2.sec { font-size: 15px; margin: 0; font-weight: 700; }
 .empty p { margin: 0; }
 .toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(18px + env(safe-area-inset-bottom, 0px)); background: var(--ink); color: var(--paper); padding: 9px 16px; border-radius: var(--r); font-size: 14px; z-index: 20; max-width: calc(100% - 32px); }
 .thinking { color: var(--muted); font-style: italic; }
+.grid66 i.kept { background: color-mix(in srgb, var(--ok) 45%, var(--rule)); }
+.milestone { border: 1px solid var(--ok); background: var(--ok-soft); color: var(--ok); border-radius: var(--r); padding: 10px 14px; font-weight: 500; }
+.callout { border: 1px dashed var(--cobalt); border-radius: var(--r); padding: 12px 16px; display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.chat { display: flex; flex-direction: column; gap: 12px; }
+.msg { max-width: 88%; display: flex; flex-direction: column; gap: 4px; }
+.msg.them { align-self: flex-start; }
+.msg.me { align-self: flex-end; align-items: flex-end; }
+.msg .bubble { font-family: var(--f-en); font-size: 18px; line-height: 1.5; padding: 10px 14px; border-radius: 10px; }
+.msg.them .bubble { background: var(--paper); border: 1px solid var(--rule); }
+.msg.me .bubble { background: color-mix(in srgb, var(--c-speak) 12%, var(--sheet)); border: 1px solid color-mix(in srgb, var(--c-speak) 35%, var(--rule)); }
+.msg .bubble.veiled { color: transparent; text-shadow: 0 0 9px color-mix(in srgb, var(--ink) 55%, transparent); cursor: pointer; user-select: none; }
+.msg small { font-size: 12px; color: var(--muted); }
+.retry { border-left: 3px solid var(--warn); padding-left: 12px; display: flex; flex-direction: column; gap: 6px; }
 @media (max-width: 520px) {
   .grades { grid-template-columns: repeat(2, 1fr); }
   .grid66 { grid-template-columns: repeat(11, 1fr); }
@@ -321,7 +334,49 @@ const BLOCKS = {
   listen: { name: "聞く", min: 20, color: "var(--c-listen)", desc: "1 文ずつ聞いて書き取る。聞き落とした所は自動でカードになる。" },
   speak: { name: "話す", min: 15, color: "var(--c-speak)", desc: "同じお題を 4 分、3 分、2 分で 3 回話す。速さ (wpm) を記録する。" },
 };
-const MIN_DAY_SEC = 15 * 60;
+const KEEP_SEC = 5 * 60;    // keeps the streak (Duolingo: decoupling the streak from the daily goal raised retention)
+const GOAL_SEC = 15 * 60;   // daily goal
+const MIN_DAY_SEC = GOAL_SEC;
+function dayLevel(d) {
+  const sec = daySec(d);
+  if (sec >= GOAL_SEC) return "done";
+  if (sec >= KEEP_SEC || d?.review?.cleared) return "kept";
+  return sec > 0 ? "touched" : "none";
+}
+function dayWords(d) {
+  if (!d?.speak) return 0;
+  let n = 0;
+  for (const s of d.speak.sessions || []) for (const r of s.rounds || []) n += r.words || 0;
+  for (const t of d.speak.talks || []) n += t.words || 0;
+  return n;
+}
+function words7() {
+  let n = 0; const tk = dayKey();
+  for (let i = 0; i < 7; i++) n += dayWords(Store.days.get(addDays(tk, -i)));
+  return Math.round(n / 7);
+}
+const SCENARIOS = [
+  { id: "standup", en: "Daily standup", ja: "朝会で、昨日やったこと・今日やること・困っていることを話す", role: "You are a friendly engineering manager running a remote daily standup with the user, a software engineer on your team. Ask what they did yesterday, what they plan today, and whether anything is blocking them, with natural follow-up questions." },
+  { id: "pr", en: "Walking a reviewer through your PR", ja: "自分の PR をレビュアーに口頭で説明する", role: "You are a senior engineer reviewing the user's pull request on a video call. Ask what the change does, why it is needed, how they tested it, and gently push back on one design choice." },
+  { id: "incident", en: "Reporting an incident", ja: "本番障害を報告する", role: "You are the on-call lead. The user is reporting a production incident to you. Ask what happened, the user impact, the timeline, the root cause and the follow-up actions." },
+  { id: "maintainer", en: "Proposing a feature to a maintainer", ja: "OSS のメンテナに機能を提案する", role: "You are the maintainer of a popular open source project. The user wants to propose a feature. Ask about the use case, alternatives they considered, and who will maintain it." },
+  { id: "meetup", en: "Small talk at a conference meetup", ja: "カンファレンス後の懇親会で雑談する", role: "You are a developer from another country who just met the user at a conference meetup. Make small talk, ask about their work, their open source projects and their trip." },
+  { id: "interview", en: "Engineering job interview", ja: "海外企業のエンジニア面接", role: "You are an interviewer at an international software company. Ask the user one question at a time about their background, a hard problem they solved, and how they work with others." },
+];
+const TALK_MAX_TURNS = 8;
+const BENCH_FALLBACK = [
+  "I think we should wait until the next release before we change the default.",
+  "Could you send me the logs from the last time it crashed?",
+  "We've been seeing a lot of timeouts since we moved to the new cluster.",
+  "If nobody objects, I'll go ahead and merge it this afternoon.",
+  "The problem is that the cache doesn't get cleared when the user logs out.",
+  "I didn't have time to look at it yesterday, but I'll get to it today.",
+  "Let's not worry about performance until we know it's actually a problem.",
+  "She was going to write the docs, but she got pulled into another project.",
+  "Have you tried turning off the feature flag to see if it goes away?",
+  "We ended up rewriting the whole parser because the old one was too slow.",
+];
+const BENCH_TOPIC = "Describe what you work on these days and what you want to be able to do in English a year from now.";
 const CATS = ["article", "plural", "tense", "preposition", "word-order", "word-choice", "collocation", "spelling", "other"];
 const CAT_JA = { article: "冠詞", plural: "単数・複数", tense: "時制", preposition: "前置詞", "word-order": "語順", "word-choice": "単語の選び方", collocation: "コロケーション", spelling: "綴り", other: "その他" };
 
@@ -544,6 +599,7 @@ let sampleFn = null;
 async function initSample() {
   try { sampleFn = window.claude ? await window.claude.use("sample") : null; } catch (e) { sampleFn = null; }
   document.querySelectorAll("[data-needs-claude]").forEach((el) => { el.hidden = !sampleFn; });
+  if (sampleFn && view === "today") go("today");
 }
 function sampleErr(e) {
   const c = e && e.code;
@@ -605,7 +661,7 @@ function go(v, arg) {
   const tab = ["today", "cards", "stats"].includes(v) ? v : "today";
   for (const b of nav.querySelectorAll("button")) { if (b.dataset.view === tab) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current"); }
   main.replaceChildren();
-  ({ today: viewToday, cards: viewCards, stats: viewStats, review: viewReview, listen: viewListen, speak: viewSpeak }[v])(arg);
+  ({ today: viewToday, cards: viewCards, stats: viewStats, review: viewReview, listen: viewListen, speak: viewSpeak, talk: viewTalk, bench: viewBench }[v])(arg);
   window.scrollTo({ top: 0 });
 }
 function backBtn() { return h("button", { type: "button", class: "btn ghost", onclick: () => go("today") }, "← 今日に戻る"); }
@@ -639,8 +695,12 @@ function viewToday() {
     h("div", { class: "label" }, fmtDay(dayKey()), "　今日の練習"),
     h("div", { class: "hero-line" },
       h("div", { class: "big" }, Math.floor(total / 60), h("small", {}, ` / ${target / 60} 分`)),
-      total >= MIN_DAY_SEC ? h("span", { class: "pill done" }, "今日の最低ライン 15 分はクリア") : h("span", { class: "pill" }, `最低ライン 15 分まであと ${Math.ceil((MIN_DAY_SEC - total) / 60)} 分`)),
+      h("div", { class: "row" },
+        dayLevel(d) !== "none" && dayLevel(d) !== "touched" ? h("span", { class: "pill done" }, "連続は守った") : h("span", { class: "pill" }, `連続を守るまで あと ${Math.ceil((KEEP_SEC - total) / 60)} 分 (または復習を全部)`),
+        total >= GOAL_SEC ? h("span", { class: "pill done" }, "ゴール 15 分 達成") : h("span", { class: "pill" }, `ゴール 15 分まで あと ${Math.ceil((GOAL_SEC - total) / 60)} 分`))),
     bar,
+    milestoneLine(),
+    benchCallout(),
     h("div", { class: "plan" }, h("span", { class: "muted" }, "いつやる:"), planIn),
     s.focus && s.focus.length ? h("div", { class: "row" }, h("span", { class: "label" }, "今週の重点"), s.focus.map((f) => h("span", { class: "pill focus" }, CAT_JA[f] || f))) : null,
   );
@@ -651,16 +711,34 @@ function viewToday() {
     let extra = "";
     if (k === "review") extra = `今日の復習 ${due} 枚、新しいカード ${Math.min(newLeft, fresh)} 枚`;
     if (k === "listen") extra = `今日 ${d.listen.n || 0} 文`;
-    if (k === "speak") extra = `今日 ${(d.speak.sessions || []).length} セット`;
+    if (k === "speak") extra = `今日 ${dayWords(d)} 語 / 7 日平均 ${words7()} 語`;
+    const goBtn = k === "speak"
+      ? h("div", { class: "go row", style: "flex-direction:column;align-items:stretch;gap:6px" },
+          h("button", { type: "button", class: "btn" + (k === nextBlock ? " primary" : ""), "data-needs-claude": "", hidden: !sampleFn, onclick: () => go("talk") }, "AI と会話"),
+          h("button", { type: "button", class: "btn" + (k === nextBlock && !sampleFn ? " primary" : ""), onclick: () => go("speak") }, "4/3/2"))
+      : h("button", { type: "button", class: "btn go" + (k === nextBlock ? " primary" : ""), onclick: () => go(k) }, st === "done" ? "もう少しやる" : "始める");
     return h("div", { class: "run" },
       h("span", { class: "idx" }, i + 1),
       h("h3", {}, h("span", { class: "dot", style: `background:${b.color}` }), b.name, h("span", { class: "num muted", style: "font-weight:400;font-size:13px" }, `${mins} / ${b.min} 分`),
         st === "done" ? h("span", { class: "pill done" }, "済") : st === "part" ? h("span", { class: "pill part" }, "途中") : null),
-      h("p", {}, b.desc, " ", h("span", { class: "num" }, extra)),
-      h("button", { type: "button", class: "btn go" + (k === nextBlock ? " primary" : ""), onclick: () => go(k) }, st === "done" ? "もう少しやる" : "始める"));
+      h("p", {}, k === "speak" ? "AI と仕事の場面で会話するか、同じお題を 4 分・3 分・2 分で話す。話した語数を記録する。" : b.desc, " ", h("span", { class: "num" }, extra)),
+      goBtn);
   }));
 
   main.append(hero, runs, habitSection());
+}
+function milestoneLine() {
+  const st = streak();
+  const marks = { 3: "連続 3 日。まずは 1 週間を目指す", 7: "連続 7 日。ここまで来ると続く人が多い", 14: "連続 14 日。2 週間続いた", 30: "連続 30 日。1 か月続いた", 50: "連続 50 日", 66: "連続 66 日。習慣化の目安に届いた", 100: "連続 100 日" };
+  return marks[st] ? h("div", { class: "milestone" }, marks[st]) : null;
+}
+function benchCallout() {
+  const month = dayKey().slice(0, 7);
+  const done = (Store.settings.bench || []).some((b) => b.date.slice(0, 7) === month);
+  if (done) return null;
+  return h("div", { class: "callout" },
+    h("span", {}, h("b", {}, "今月の月例テストがまだ"), h("span", { class: "muted" }, "　聞き取り 10 文と 2 分スピーチ。約 8 分")),
+    h("button", { type: "button", class: "btn", onclick: () => go("bench") }, "受ける"));
 }
 function habitSection() {
   const s = Store.settings, tk = dayKey();
@@ -670,11 +748,10 @@ function habitSection() {
   let doneCount = 0;
   for (let i = 0; i < 66; i++) {
     const k = addDays(start, i);
-    const sec = daySec(Store.days.get(k));
+    const dd = Store.days.get(k), sec = daySec(dd), lv = dayLevel(dd);
     let cls = "future";
-    if (k < tk) cls = sec >= MIN_DAY_SEC ? "done" : sec > 0 ? "part" : "miss";
-    else if (k === tk) cls = sec >= MIN_DAY_SEC ? "done" : sec > 0 ? "part" : "";
-    if (cls === "done") doneCount++;
+    if (k <= tk) cls = lv === "done" ? "done" : lv === "kept" ? "kept" : k < tk ? "miss" : "";
+    if (cls === "done" || cls === "kept") doneCount++;
     cells.push(h("i", { class: cls + (k === tk ? " today" : ""), title: `${fmtDay(k)} ${Math.floor(sec / 60)} 分` }));
   }
   const st = streak();
@@ -684,19 +761,20 @@ function habitSection() {
       h("span", { class: "num muted", style: "font-size:13px" }, dayN <= 66 ? `${dayN} 日目 / 66` : "66 日を過ぎた")),
     h("div", { class: "grid66", role: "img", "aria-label": `66 日のうち ${doneCount} 日達成` }, cells),
     h("div", { class: "legend" },
-      h("span", {}, h("i", { style: "background:var(--ok)" }), "15 分以上"),
-      h("span", {}, h("i", { style: "background:color-mix(in srgb, var(--ok) 35%, var(--rule))" }), "少しだけ"),
+      h("span", {}, h("i", { style: "background:var(--ok)" }), "ゴール 15 分"),
+      h("span", {}, h("i", { style: "background:color-mix(in srgb, var(--ok) 45%, var(--rule))" }), "5 分 (連続を守った)"),
       h("span", {}, h("i", { style: "box-shadow:inset 0 0 0 1px var(--rule)" }), "休み"),
       h("span", { class: "num" }, `連続 ${st} 日`)),
-    h("p", { class: "muted", style: "margin:0;font-size:13px" }, "習慣になるまでの中央値は 66 日 (Lally 2010)。1 日休んでも影響はほぼないので、休みは 7 日に 1 回までなら連続が切れない扱いにしている。"));
+    h("p", { class: "muted", style: "margin:0;font-size:13px" }, "習慣になるまでの中央値は 66 日 (Lally 2010)。連続は 5 分か復習を全部やれば延びる (Duolingo は連続の条件を下げて継続率が上がった)。休みは 7 日に 1 回までなら連続が切れない。"));
 }
 function streak() {
   const tk = dayKey();
-  let k = daySec(Store.days.get(tk)) >= MIN_DAY_SEC ? tk : addDays(tk, -1);
+  const kept = (k) => { const lv = dayLevel(Store.days.get(k)); return lv === "done" || lv === "kept"; };
+  let k = kept(tk) ? tk : addDays(tk, -1);
   let n = 0, lastMiss = -99, i = 0;
   const start = Store.settings.startDate || tk;
   while (k >= start) {
-    if (daySec(Store.days.get(k)) >= MIN_DAY_SEC) n++;
+    if (kept(k)) n++;
     else { if (i - lastMiss < 7) break; lastMiss = i; }
     k = addDays(k, -1); i++;
   }
@@ -738,6 +816,7 @@ function renderReview() {
   main.append(h("div", { class: "drill" }, head, h("div", { id: "rv" })));
   const slot = document.getElementById("rv");
   if (!RQ.items.length) {
+    if (RQ.done && !today().review.cleared) { today().review.cleared = true; Clock.dirty = true; flushDay(); }
     const { fresh } = dueCount();
     slot.append(h("div", { class: "sheet empty" },
       h("p", {}, RQ.done ? `今日の復習は終わり。${RQ.done} 枚やった。` : "今やる復習カードはない。"),
@@ -777,17 +856,36 @@ function reviewCard(card) {
   const checkBtn = h("button", { type: "button", class: "btn primary" }, "答え合わせ", h("kbd", { class: "num", style: "opacity:.7;font-size:11px" }, "Enter"));
   const skipBtn = h("button", { type: "button", class: "btn ghost" }, "わからない");
   const box = h("div", { class: "sheet card" }, face, input, h("div", { class: "row" }, checkBtn, skipBtn));
+  let attempt = 0, retryBox = null;
   const check = (typed) => {
     const r = bestAlign(card.answer, typed);
-    const sg = typed.trim() ? suggestGrade(r) : 1;
-    input.disabled = true; checkBtn.remove(); skipBtn.remove();
     const ok = r.miss + r.extra === 0 && typed.trim();
+    // first wrong try: show where, not what (prompt before recast; Lyster & Saito 2010)
+    if (!ok && typed.trim() && attempt === 0) {
+      attempt = 1;
+      const marked = r.ops.map((o) => (o.t === "miss" ? { t: "miss", w: "＿" } : o));
+      retryBox = h("div", { class: "retry" },
+        h("div", { class: "verdict ng" }, "惜しい。もう一度だけ直してみる"),
+        h("p", { class: "diff", style: "font-size:17px" }, marked.map((o, k) => [k ? " " : "", h("span", { class: o.t }, o.w)])),
+        h("span", { class: "muted", style: "font-size:13px" }, `取り消し線は要らない語、＿ は足りない語 (${r.miss} 個)。`, card.category ? `カテゴリ: ${CAT_JA[card.category] || card.category}` : ""));
+      box.insertBefore(retryBox, input);
+      input.select();
+      return;
+    }
+    retryBox?.remove();
+    const sg = !typed.trim() ? 1 : ok ? (attempt ? 2 : 3) : suggestGrade(r);
+    input.disabled = true; checkBtn.remove(); skipBtn.remove();
+    const explainSlot = h("div", { class: "section" });
+    const whyBtn = !ok && sampleFn ? h("button", { type: "button", class: "btn ghost" }, "なぜ?") : null;
+    whyBtn?.addEventListener("click", () => explain(card, typed, explainSlot, whyBtn));
     box.append(
-      h("div", { class: "verdict " + (ok ? "ok" : "ng") }, ok ? "正解" : typed.trim() ? "ここが違う" : "答え"),
+      h("div", { class: "verdict " + (ok ? "ok" : "ng") }, ok ? (attempt ? "正解 (2 回目)" : "正解") : typed.trim() ? "ここが違う" : "答え"),
       renderDiff(typed.trim() ? r.ops : r.ops.map((o) => ({ ...o, t: "eq" }))),
       card.note ? h("p", { class: "note" }, card.note) : null,
-      h("div", { class: "row" }, h("button", { type: "button", class: "btn ghost", onclick: () => say(r.answer) }, ICON.play(), "正解を読み上げ")),
+      h("div", { class: "row" }, h("button", { type: "button", class: "btn ghost", onclick: () => say(r.answer) }, ICON.play(), "正解を読み上げ"), whyBtn),
+      explainSlot,
       gradeRow(card, sg));
+    if (!ok && card.explain) { explainSlot.append(h("p", { class: "note" }, card.explain)); whyBtn?.remove(); }
   };
   checkBtn.addEventListener("click", () => check(input.value));
   skipBtn.addEventListener("click", () => check(""));
@@ -796,6 +894,22 @@ function reviewCard(card) {
   setTimeout(() => input.focus(), 30);
   const dots = h("div", { class: "progress-dots", "aria-hidden": "true" }, Array.from({ length: Math.min(40, RQ.done + RQ.items.length) }, (_, i) => h("i", { class: i < RQ.done ? "on" : "" })));
   return h("div", { class: "drill" }, dots, box);
+}
+async function explain(card, typed, slot, btn) {
+  btn.disabled = true;
+  slot.replaceChildren(h("p", { class: "thinking", style: "margin:0" }, "Claude が考えている…"));
+  const what = card.kind === "fix" ? `The learner had to correct this sentence: "${card.prompt}"` : card.kind === "vocab" ? `The learner had to produce the English for this Japanese meaning: "${card.prompt}"${card.example ? ` (context: "${card.example}")` : ""}` : `The learner had to fill the gap in a sentence they heard: "${card.prompt}"`;
+  try {
+    const { text } = await sampleFn(`You explain English mistakes to a Japanese software engineer (CEFR B1). ${what}\nCorrect answer: "${card.answer.split("|")[0].trim()}"\nTheir answer: "${typed || "(no answer)"}"\n\nIn Japanese, in at most 3 short sentences, explain why the correct answer is right and what rule or usage they missed. Then give one new English example sentence from a software-engineering context, on its own line, starting with "例: ". No headings, no markdown.`, { modelTier: "quick" });
+    const clean = text.trim().slice(0, 600);
+    slot.replaceChildren(h("p", { class: "note", style: "white-space:pre-line" }, clean));
+    btn.remove();
+    const cur = Store.cards.get(card.id);
+    if (cur) Store.putCard({ ...cur, explain: clean });
+  } catch (e) {
+    slot.replaceChildren(h("p", { class: "muted", style: "margin:0;font-size:13px" }, sampleErr(e)));
+    btn.disabled = false;
+  }
 }
 function gradeRow(card, suggested) {
   const now = new Date();
@@ -826,8 +940,9 @@ function rate(card, g) {
   const now = new Date();
   const wasNew = !card.fsrs;
   const res = scheduler.next(liveCard(card.fsrs), now, g);
-  const log = (card.log || []).concat([[now.toISOString(), g, res.log.state]]);
-  const updated = { ...card, fsrs: savedCard(res.card), log, lastRating: g };
+  const base = Store.cards.get(card.id) || card;
+  const log = (base.log || []).concat([[now.toISOString(), g, res.log.state]]);
+  const updated = { ...base, fsrs: savedCard(res.card), log, lastRating: g };
   Store.putCard(updated);
   const d = today();
   d.review.n += 1; if (g === 1) d.review.again += 1; if (wasNew) d.review.newN += 1;
@@ -850,13 +965,13 @@ function viewListen() {
   const cur = Store.settings.listenCursor || 0;
   const picks = [];
   for (let i = 0; i < 8; i++) picks.push(pool[(cur + i) % pool.length]);
-  LS = { list: picks, i: 0, startCursor: cur };
+  LS = { list: picks, i: 0, startCursor: cur, words: 0, missed: 0, rate: Store.settings.listenRate || 1 };
   renderListen();
 }
 function renderListen() {
   main.replaceChildren();
   const head = h("div", { class: "drill-head" },
-    h("h2", {}, h("span", { class: "dot", style: "background:var(--c-listen)" }), "聞く", h("span", { class: "num muted", style: "font-weight:400;font-size:14px" }, LS.i < LS.list.length ? `${LS.i + 1} / ${LS.list.length}` : "")),
+    h("h2", {}, h("span", { class: "dot", style: "background:var(--c-listen)" }), "聞く", h("span", { class: "num muted", style: "font-weight:400;font-size:14px" }, (LS.i < LS.list.length ? `${LS.i + 1} / ${LS.list.length}　` : "") + `速さ ×${LS.rate.toFixed(1)}`)),
     backBtn());
   const wrap = h("div", { class: "drill" }, head);
   main.append(wrap);
@@ -865,10 +980,18 @@ function renderListen() {
     return;
   }
   if (LS.i >= LS.list.length) {
-    Store.putSettings({ ...Store.settings, listenCursor: (LS.startCursor + LS.list.length) % sentencePool().length });
+    // keep dictation near 80-90% correct: speed up above 90%, slow down below 75% (avg of last 3 sets)
+    const acc = LS.words ? 1 - LS.missed / LS.words : 1;
+    const hist = (Store.settings.listenHist || []).concat([Math.round(acc * 1000) / 1000]).slice(-10);
+    const recent = hist.slice(-3), avg = recent.reduce((a, b) => a + b, 0) / recent.length;
+    let rate = Store.settings.listenRate || 1, moved = "";
+    if (recent.length >= 3 && avg > 0.9 && rate < 1.3) { rate = Math.round((rate + 0.1) * 10) / 10; moved = "up"; }
+    else if (recent.length >= 3 && avg < 0.75 && rate > 0.8) { rate = Math.round((rate - 0.1) * 10) / 10; moved = "down"; }
+    Store.putSettings({ ...Store.settings, listenCursor: (LS.startCursor + LS.list.length) % sentencePool().length, listenHist: moved ? [] : hist, listenRate: rate });
     flushDay();
     wrap.append(h("div", { class: "sheet empty" },
-      h("p", {}, `${LS.list.length} 文やった。聞き落とした所は復習カードに入れてある。`),
+      h("p", {}, `${LS.list.length} 文やった。聞き取れた語は ${Math.round(acc * 100)}%。聞き落とした所は復習カードに入れてある。`),
+      moved ? h("p", { class: "verdict " + (moved === "up" ? "ok" : "ng") }, moved === "up" ? `直近 3 回が 90% を超えたので、次から速さを ×${rate.toFixed(1)} に上げる` : `直近 3 回が 75% を切ったので、次から速さを ×${rate.toFixed(1)} に下げる`) : h("p", { class: "muted", style: "font-size:13px" }, "正答率が 80〜90% に収まるように、直近 3 回の平均で読み上げの速さを自動で上げ下げしている。"),
       h("p", {}, "時間が残っているなら、ここで英語の動画や Podcast に切り替える。9 割くらいわかるものを英語字幕で観る。観た時間は「聞いた時間を足す」で記録できる。"),
       h("div", { class: "row" },
         h("button", { type: "button", class: "btn primary", onclick: () => viewListen() }, "あと 8 文"),
@@ -882,14 +1005,14 @@ function renderListen() {
   const playN = h("button", { type: "button", class: "btn primary" }, ICON.play(), "聞く");
   const playS = h("button", { type: "button", class: "btn" }, ICON.slow(), "ゆっくり");
   const play = async (rate) => { Clock.force = true; await say(s.text, rate); Clock.force = false; input.focus(); };
-  playN.addEventListener("click", () => play(1));
-  playS.addEventListener("click", () => play(0.72));
+  playN.addEventListener("click", () => play(LS.rate));
+  playS.addEventListener("click", () => play(LS.rate * 0.72));
   const checkBtn = h("button", { type: "button", class: "btn" }, "答え合わせ");
   const box = h("div", { class: "sheet card" },
     h("div", { class: "row" }, h("span", { class: "label" }, "ディクテーション"), h("span", { class: "muted", style: "font-size:13px" }, "Ctrl + Space でもう一度聞ける")),
     h("div", { class: "row" }, playN, playS), input, h("div", { class: "row" }, checkBtn));
   wrap.append(box);
-  const onKey = (e) => { if (e.ctrlKey && e.code === "Space") { e.preventDefault(); play(1); } };
+  const onKey = (e) => { if (e.ctrlKey && e.code === "Space") { e.preventDefault(); play(LS.rate); } };
   input.addEventListener("keydown", onKey);
   input.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); checkBtn.click(); } });
   checkBtn.addEventListener("click", () => {
@@ -897,6 +1020,7 @@ function renderListen() {
     input.disabled = true; checkBtn.remove();
     const d = today();
     d.listen.n += 1; d.listen.missed += r.miss;
+    LS.words += r.words.length; LS.missed += r.miss;
     d.listen.ids = (d.listen.ids || []).concat(s.id).slice(-200);
     Clock.dirty = true;
     const spans = []; let curSpan = null;
@@ -929,7 +1053,7 @@ function renderListen() {
       h("div", { class: "row" }, next, shadow));
     next.focus();
   });
-  setTimeout(() => play(1), 300);
+  setTimeout(() => play(LS.rate), 300);
 }
 function addListenMinutes() {
   const inp = h("input", { id: "ls-min", type: "number", min: "1", max: "180", class: "field num", style: "width:6rem", placeholder: "分" });
@@ -1077,24 +1201,24 @@ function finishSpeak() {
       h("div", { class: "row" }, fbBtn, h("button", { type: "button", class: "btn", onclick: () => go("today") }, "今日に戻る")),
       fbSlot)));
 }
-async function feedback(text, slot, btn) {
+async function feedback(text, slot, btn, topic = SP && SP.topic, max = 5) {
   if (!sampleFn) return;
   btn.disabled = true;
   slot.replaceChildren(h("p", { class: "thinking", style: "margin:0" }, "Claude が読んでいる…"));
   const focus = (Store.settings.focus || []).join(", ") || "none set";
-  const prompt = "You are an English tutor for a Japanese software engineer. Below is a speech-to-text transcript of their unscripted 2-minute talk. Ignore punctuation, capitalisation and obvious speech-recognition glitches.\n\nRules:\n" +
-    "- Report at most 5 errors that would confuse a listener or that a fluent speaker would not say. Skip style preferences. Do not rewrite the talk.\n" +
+  const prompt = "You are an English tutor for a Japanese software engineer. Below is a speech-to-text transcript of what they said, unscripted. Ignore punctuation, capitalisation and obvious speech-recognition glitches.\n\nRules:\n" +
+    "- Report at most " + max + " errors that would confuse a listener or that a fluent speaker would not say. Skip style preferences. Do not rewrite the talk.\n" +
     "- Give priority to these focus categories: " + focus + ".\n" +
     "- For each error: \"quote\" = the exact words from the transcript (at most 10 words), \"category\" = one of " + CATS.join(", ") + ", \"hint_ja\" = a short hint in Japanese that helps them fix it themselves WITHOUT giving the answer, \"correction\" = the minimal corrected version of the quote.\n" +
     "- \"good_ja\" = one short sentence in Japanese naming one thing they did well.\n" +
-    "Reply with only JSON: {\"errors\": [...], \"good_ja\": \"...\"}\n\nTopic: " + SP.topic + "\n\nTranscript:\n" + text.slice(0, 6000);
+    "Reply with only JSON: {\"errors\": [...], \"good_ja\": \"...\"}\n\nTopic: " + topic + "\n\nTranscript:\n" + text.slice(0, 6000);
   try {
     const res = await sampleFn.json(prompt, { cache: false });
-    const errs = (Array.isArray(res?.errors) ? res.errors : []).filter((e) => e && e.quote && e.correction).slice(0, 5);
-    slot.replaceChildren(
+    const errs = (Array.isArray(res?.errors) ? res.errors : []).filter((e) => e && e.quote && e.correction).slice(0, max);
+    slot.replaceChildren(...[
       res?.good_ja ? h("p", { style: "margin:0" }, h("b", {}, "よかった所: "), String(res.good_ja)) : null,
       errs.length ? h("p", { class: "muted", style: "margin:0;font-size:13px" }, "まず自分で直して書く。答えはそのあとで見る。") : h("p", { style: "margin:0" }, "大きな間違いは見つからなかった。"),
-      errs.map((e) => fbItem(e)));
+      ...errs.map((e) => fbItem(e))].filter(Boolean));
   } catch (e) {
     slot.replaceChildren(h("p", { class: "muted", style: "margin:0" }, sampleErr(e)));
   }
@@ -1121,6 +1245,208 @@ function fbItem(e) {
     h("div", { class: "row" }, h("span", { class: "chip" }, CAT_JA[cat]), h("span", { class: "quote" }, h("mark", {}, String(e.quote)))),
     e.hint_ja ? h("p", { class: "note" }, String(e.hint_ja)) : null,
     h("div", { class: "row", style: "flex-wrap:nowrap" }, inp, show), out);
+}
+
+/* ----- talk (AI roleplay) ----- */
+let TK = null;
+function talkHead(title) {
+  return h("div", { class: "drill-head" }, h("h2", {}, h("span", { class: "dot", style: "background:var(--c-speak)" }), title), backBtn());
+}
+function viewTalk() {
+  Clock.block = "speak";
+  TK = null;
+  if (!sampleFn) {
+    main.append(h("div", { class: "drill" }, talkHead("AI と会話"), h("div", { class: "sheet empty" },
+      h("p", {}, "AI との会話は claude.ai で開いたときだけ使える。Claude の利用を許可していない場合も使えない。"),
+      h("div", { class: "row" }, h("button", { type: "button", class: "btn", onclick: () => go("speak") }, "4/3/2 をやる")))));
+    return;
+  }
+  const veil = h("input", { type: "checkbox", id: "talk-veil" });
+  veil.checked = !!Store.settings.talkVeil;
+  veil.addEventListener("change", () => Store.putSettings({ ...Store.settings, talkVeil: veil.checked }));
+  const list = h("div", { class: "topics", role: "group", "aria-label": "場面" }, SCENARIOS.map((s) => {
+    const b = h("button", { type: "button" }, h("span", { class: "en" }, s.en), h("small", {}, s.ja));
+    b.addEventListener("click", () => startTalk(s, veil.checked));
+    return b;
+  }));
+  main.append(h("div", { class: "drill" }, talkHead("AI と会話"),
+    h("div", { class: "sheet card" },
+      h("p", { style: "margin:0" }, "仕事の場面で Claude と英語で会話する。相手の返事は 1〜2 文で、読み上げもされる。8 往復くらいで相手が会話を締める。途中では訂正せず、終わってから直す所を 3 つまで出す。"),
+      h("p", { class: "note" }, "日本人の英語学習者を対象にした Duolingo の Video Call の研究では、1 回の会話でしゃべった語数が、話す力の伸びを一番よく予測した。短く答えずに、理由や例を足して長く話す。話すときは入力欄で fn を 2 回押して音声入力。"),
+      h("label", { class: "row", style: "font-size:14px" }, veil, "相手の英文を隠して、耳だけで聞く (クリックで表示)"),
+      h("span", { class: "label" }, "場面を選ぶ"),
+      list)));
+}
+function talkInput() {
+  const sys = `${TK.s.role}\n\nYou are talking with a Japanese software engineer practising spoken English (about CEFR B1). Their messages come from speech-to-text, so ignore punctuation and guess the meaning of recognition errors.\nRules:\n- Stay in character. Reply with 1-2 short spoken sentences (under 35 words) and usually end with one open question.\n- Use natural, common spoken English (B1-B2 level). No lists, no markdown, no emoji, no stage directions.\n- Never correct or comment on their English during the conversation.\n- Keep them talking: ask questions that need more than yes or no.\n- When told to wrap up, close the conversation politely in one or two sentences and end with the token [END].`;
+  const turns = [{ role: "user", content: sys + "\n\nStart the conversation now with your first line." }];
+  for (const m of TK.msgs) turns.push({ role: m.who === "them" ? "assistant" : "user", content: m.text });
+  if (TK.userTurns >= TALK_MAX_TURNS || TK.wrap) turns.push({ role: "user", content: "(Wrap up the conversation now.)" });
+  return turns;
+}
+function startTalk(s, veil) {
+  TK = { s, veil, msgs: [], userTurns: 0, words: 0, ended: false, busy: false, wrap: false, entry: null };
+  renderTalk();
+  partnerTurn();
+}
+async function partnerTurn() {
+  const input = talkInput();
+  TK.busy = true;
+  renderTalk();
+  try {
+    const { text } = await sampleFn(input, { cache: false, modelTier: "quick" });
+    let t = text.trim();
+    if (t.includes("[END]")) { TK.ended = true; t = t.replace(/\[END\]/g, "").trim(); }
+    TK.msgs.push({ who: "them", text: t });
+    TK.busy = false;
+    renderTalk();
+    if (canSpeak) { Clock.force = true; await say(t, Store.settings.listenRate || 1); Clock.force = false; }
+  } catch (e) {
+    TK.busy = false;
+    renderTalk();
+    toast(sampleErr(e) || "止めた");
+  }
+}
+function saveTalk() {
+  const d = today();
+  const rec = { scenario: TK.s.id, turns: TK.userTurns, words: TK.words, at: new Date().toISOString() };
+  d.speak.talks = d.speak.talks || [];
+  if (TK.entry == null) { d.speak.talks.push(rec); TK.entry = d.speak.talks.length - 1; } else d.speak.talks[TK.entry] = rec;
+  Clock.dirty = true; flushDay();
+}
+function renderTalk() {
+  main.replaceChildren();
+  const chat = h("div", { class: "chat", "aria-live": "polite" }, TK.msgs.map((m) => {
+    if (m.who === "me") return h("div", { class: "msg me" }, h("div", { class: "bubble" }, m.text), h("small", { class: "num" }, `${countWords(m.text)} 語`));
+    const bubble = h("div", { class: "bubble" + (TK.veil && !m.shown ? " veiled" : ""), title: TK.veil && !m.shown ? "クリックで英文を表示" : null }, m.text);
+    bubble.addEventListener("click", () => { m.shown = true; bubble.classList.remove("veiled"); });
+    return h("div", { class: "msg them" }, bubble, h("button", { type: "button", class: "btn ghost", style: "align-self:flex-start;padding:2px 6px;font-size:13px", onclick: () => say(m.text, Store.settings.listenRate || 1) }, ICON.play(), "もう一度"));
+  }), TK.busy ? h("div", { class: "msg them" }, h("div", { class: "bubble thinking" }, "…")) : null);
+  const box = h("div", { class: "sheet card" }, h("div", { class: "row between" }, h("span", { class: "label" }, TK.s.ja), h("span", { class: "num muted", style: "font-size:13px" }, `あなた ${TK.words} 語 / ${TK.userTurns} 回`)), chat);
+  if (!TK.ended) {
+    const ta = h("textarea", { id: "talk-in", class: "answer-in", rows: "3", placeholder: "fn 2 回で音声入力して話す。Enter で送る", "aria-label": "あなたの返事" });
+    ta.value = TK.draft || "";
+    ta.addEventListener("input", () => { TK.draft = ta.value; });
+    const send = h("button", { type: "button", class: "btn primary", disabled: TK.busy }, "送る");
+    const end = h("button", { type: "button", class: "btn ghost" }, "ここで終わる");
+    const doSend = () => {
+      const t = ta.value.trim();
+      if (!t || TK.busy) return;
+      TK.msgs.push({ who: "me", text: t }); TK.userTurns++; TK.words += countWords(t); TK.draft = "";
+      saveTalk();
+      partnerTurn();
+    };
+    send.addEventListener("click", doSend);
+    ta.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); doSend(); } });
+    end.addEventListener("click", () => { if (TK.userTurns === 0) return go("talk"); TK.ended = true; renderTalk(); });
+    box.append(ta, h("div", { class: "row" }, send, end));
+    setTimeout(() => ta.focus(), 30);
+  } else {
+    const mine = TK.msgs.filter((m) => m.who === "me").map((m) => m.text).join("\n");
+    const slot = h("div", { class: "fb" });
+    const fbBtn = h("button", { type: "button", class: "btn primary", hidden: countWords(mine) < 10 }, "直す所を見る (3 つまで)");
+    fbBtn.addEventListener("click", () => feedback(mine, slot, fbBtn, TK.s.en, 3));
+    if (TK.userTurns) saveTalk();
+    box.append(
+      h("p", { class: "verdict ok", style: "margin:0" }, `会話おわり。${TK.userTurns} 回話して ${TK.words} 語。7 日平均は 1 日 ${words7()} 語。`),
+      h("div", { class: "row" }, fbBtn, h("button", { type: "button", class: "btn", onclick: () => go("talk") }, "別の場面で話す"), h("button", { type: "button", class: "btn ghost", onclick: () => go("today") }, "今日に戻る")),
+      slot);
+  }
+  main.append(h("div", { class: "drill" }, talkHead("AI と会話: " + TK.s.en), box));
+}
+
+/* ----- monthly benchmark ----- */
+let BN = null;
+function viewBench() {
+  Clock.block = "listen";
+  BN = { phase: "intro" };
+  main.append(h("div", { class: "drill" },
+    h("div", { class: "drill-head" }, h("h2", {}, "月例テスト"), backBtn()),
+    h("div", { class: "sheet card" },
+      h("p", { style: "margin:0" }, "毎月同じ条件で測って、実力の推移を見る。XP みたいな数字ではなく、ここの推移を進歩として見る。"),
+      h("p", { class: "note" }, "① 初めて聞く 10 文を書き取る (速さは ×1.0 固定、1 文 2 回まで、ゆっくりは無し)。② 毎月同じお題で 2 分話す (音声入力)。聞き取れた語の割合、wpm、語彙の幅 (異なる語の割合) を記録する。"),
+      h("div", { class: "row" }, h("button", { type: "button", class: "btn primary", onclick: startBench }, "始める")))));
+}
+async function startBench(e) {
+  e.target.disabled = true;
+  let sents = null;
+  if (sampleFn) {
+    e.target.textContent = "問題を作っている…";
+    try {
+      const arr = await sampleFn.json("Write 10 sentences of natural spoken English that software engineers say at work (meetings, code review, incidents, planning). CEFR B1-B2, 10-16 words each, with ordinary connected speech. Make them different from common textbook examples. Reply with only a JSON array of 10 strings.", { cache: false, modelTier: "quick" });
+      sents = (Array.isArray(arr) ? arr : []).map(String).filter((x) => countWords(x) >= 6).slice(0, 10);
+      if (sents.length < 8) sents = null;
+    } catch (err) { sents = null; }
+  }
+  BN = { phase: "listen", sents: sents || BENCH_FALLBACK.slice(), i: 0, words: 0, missed: 0, src: sents ? "claude" : "fixed" };
+  renderBench();
+}
+function renderBench() {
+  main.replaceChildren();
+  const head = h("div", { class: "drill-head" }, h("h2", {}, "月例テスト", h("span", { class: "num muted", style: "font-weight:400;font-size:14px" }, BN.phase === "listen" ? `① 聞き取り ${BN.i + 1} / ${BN.sents.length}` : "② 2 分スピーチ")), backBtn());
+  if (BN.phase === "listen") {
+    const s = BN.sents[BN.i];
+    let plays = 0;
+    const input = h("textarea", { id: "bn-in", class: "answer-in", rows: "2", autocomplete: "off", spellcheck: "false", "aria-label": "聞こえた英文" });
+    const playBtn = h("button", { type: "button", class: "btn primary" }, ICON.play(), "聞く (残り 2 回)");
+    const play = async () => { if (plays >= 2) return; plays++; playBtn.lastChild.textContent = `聞く (残り ${2 - plays} 回)`; if (plays >= 2) playBtn.disabled = true; Clock.force = true; await say(s, 1); Clock.force = false; input.focus(); };
+    playBtn.addEventListener("click", play);
+    const next = h("button", { type: "button", class: "btn" }, "次へ");
+    next.addEventListener("click", () => {
+      const r = align(s, input.value);
+      BN.words += r.words.length; BN.missed += r.miss;
+      BN.i++;
+      if (BN.i >= BN.sents.length) { BN.phase = "speak"; BN.text = ""; BN.used = 0; }
+      renderBench();
+    });
+    input.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); next.click(); } });
+    main.append(h("div", { class: "drill" }, head, h("div", { class: "sheet card" }, h("span", { class: "label" }, "答え合わせは最後にまとめて出る"), h("div", { class: "row" }, playBtn), input, h("div", { class: "row" }, next))));
+    setTimeout(play, 300);
+    return;
+  }
+  if (BN.phase === "speak") {
+    const clock = h("div", { class: "clock" }, "2:00");
+    const ta = h("textarea", { id: "bn-text", class: "answer-in", rows: "6", placeholder: "fn 2 回で音声入力して話す", "aria-label": "話した内容" });
+    const startB = h("button", { type: "button", class: "btn primary" }, "スタート");
+    const finishB = h("button", { type: "button", class: "btn", disabled: true }, "結果を見る");
+    startB.addEventListener("click", () => {
+      startB.disabled = true; Clock.force = true; ta.focus();
+      const t0 = Date.now();
+      spTimer = setInterval(() => {
+        BN.used = Math.min(120, (Date.now() - t0) / 1000);
+        clock.textContent = mmss(Math.ceil(120 - BN.used));
+        if (BN.used >= 120) { stopSpeakTimer(); Clock.force = false; beep(); finishB.disabled = false; finishB.classList.add("primary"); finishB.focus(); }
+      }, 250);
+    });
+    finishB.addEventListener("click", () => { BN.text = ta.value; finishBench(); });
+    main.append(h("div", { class: "drill" }, head, h("div", { class: "sheet card" }, h("p", { class: "prompt-en", style: "font-size:20px" }, BENCH_TOPIC), h("div", { class: "row between" }, clock, h("div", { class: "row" }, startB, finishB)), ta)));
+  }
+}
+function lexicalRange(text) {
+  const ws = (text.toLowerCase().match(/[a-z']+/g) || []).slice(0, 100);
+  return ws.length ? new Set(ws).size / ws.length : 0;
+}
+function finishBench() {
+  const acc = BN.words ? 1 - BN.missed / BN.words : 0;
+  const words = countWords(BN.text);
+  const wpm = BN.used >= 20 ? Math.round(words / (BN.used / 60)) : null;
+  const ttr = lexicalRange(BN.text);
+  const rec = { date: dayKey(), listen: Math.round(acc * 1000) / 1000, wpm, words, ttr: Math.round(ttr * 1000) / 1000, src: BN.src };
+  Store.putSettings({ ...Store.settings, bench: (Store.settings.bench || []).concat([rec]).slice(-36) });
+  flushDay();
+  const prev = (Store.settings.bench || []).slice(-2, -1)[0];
+  const delta = (a, b, f) => (b == null || a == null ? "" : ` (前回 ${f(b)})`);
+  main.replaceChildren(h("div", { class: "drill" },
+    h("div", { class: "drill-head" }, h("h2", {}, "月例テスト: 結果"), backBtn()),
+    h("div", { class: "sheet stats" },
+      h("div", { class: "stat" }, h("span", { class: "label" }, "聞き取れた語"), h("b", {}, Math.round(acc * 100) + "%"), h("span", { class: "muted", style: "font-size:12px" }, delta(acc, prev?.listen, (v) => Math.round(v * 100) + "%"))),
+      h("div", { class: "stat" }, h("span", { class: "label" }, "話す速さ"), h("b", {}, wpm != null ? wpm + " wpm" : "—"), h("span", { class: "muted", style: "font-size:12px" }, delta(wpm, prev?.wpm, (v) => v + " wpm"))),
+      h("div", { class: "stat" }, h("span", { class: "label" }, "語彙の幅"), h("b", {}, Math.round(rec.ttr * 100) + "%"), h("span", { class: "muted", style: "font-size:12px" }, delta(ttr, prev?.ttr, (v) => Math.round(v * 100) + "%")))),
+    h("div", { class: "sheet card" },
+      h("span", { class: "label" }, "聞き取りの答え"),
+      BN.sents.map((s) => h("p", { class: "en", style: "margin:0;font-size:17px" }, s)),
+      h("p", { class: "note" }, "語彙の幅は、話した最初の 100 語のうち異なる語の割合。同じ語ばかり使っていると下がる。"),
+      h("div", { class: "row" }, h("button", { type: "button", class: "btn primary", onclick: () => go("today") }, "今日に戻る")))));
 }
 
 /* ----- cards ----- */
@@ -1246,7 +1572,36 @@ function viewStats() {
     h("div", { class: "row between" }, h("h2", { class: "sec" }, "B1 から B2 まで"), h("span", { class: "num muted", style: "font-size:13px" }, `${hours.toFixed(1)} / 180〜260 時間`)),
     h("div", { class: "bar" }, h("span", { style: `width:${goalPct}%;background:var(--cobalt)` })),
     h("p", { class: "muted", style: "margin:0;font-size:13px" }, "Cambridge の目安では、CEFR を 1 段上げるのに指導つきで 180〜260 時間かかる。自習時間への換算はあくまで目安。"));
-  main.append(h("div", { class: "drill" }, h("div", { class: "drill-head" }, h("h2", {}, "記録")), stats, goal, minutesChart(), wpmChart()));
+  main.append(h("div", { class: "drill" }, h("div", { class: "drill-head" }, h("h2", {}, "記録")), stats, goal, minutesChart(), wordsChart(), wpmChart(), benchTable()));
+}
+function wordsChart() {
+  const W = 640, H = 150, L = 34, B = 22, T = 8;
+  const keys = []; for (let i = 27; i >= 0; i--) keys.push(addDays(dayKey(), -i));
+  const vals = keys.map((k) => dayWords(Store.days.get(k)));
+  const top = Math.max(200, Math.ceil(Math.max(...vals) / 200) * 200);
+  const step = top / 4;
+  const y = (v) => H - B - (v / top) * (H - B - T);
+  const bw = (W - L) / keys.length;
+  const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "直近 28 日に話した語数" });
+  for (let g = 0; g <= top; g += step) svg.append(svgEl("line", { class: "grid", x1: L, x2: W, y1: y(g), y2: y(g) }), svgEl("text", { x: L - 6, y: y(g) + 3, "text-anchor": "end" }, Math.round(g)));
+  vals.forEach((v, i) => {
+    const x = L + i * bw + bw * 0.18, w = bw * 0.64;
+    if (v > 0) svg.append(svgEl("rect", { x, y: y(v), width: w, height: Math.max(0.5, y(0) - y(v)), fill: "var(--c-speak)" }));
+    if (i % 7 === 0 || i === vals.length - 1) svg.append(svgEl("text", { x: x + w / 2, y: H - 6, "text-anchor": "middle" }, keys[i].slice(5).replace("-", "/")));
+  });
+  return h("div", { class: "sheet chart" },
+    h("div", { class: "row between" }, h("h2", { class: "sec" }, "話した語数 (1 日)"), h("span", { class: "num muted", style: "font-size:13px" }, `7 日平均 ${words7()} 語`)),
+    h("div", { style: "overflow-x:auto" }, svg),
+    h("p", { class: "muted", style: "margin:0;font-size:13px" }, "AI との会話と 4/3/2 で、音声入力した語数の合計。話す力の伸びを一番よく予測したのは、しゃべった語数だった (Duolingo Video Call の研究)。"));
+}
+function benchTable() {
+  const rows = Store.settings.bench || [];
+  const box = h("div", { class: "sheet chart" }, h("div", { class: "row between" }, h("h2", { class: "sec" }, "月例テスト"), h("button", { type: "button", class: "btn", onclick: () => go("bench") }, "受ける")));
+  if (!rows.length) { box.append(h("p", { class: "muted", style: "margin:0;font-size:13px" }, "まだ受けていない。月に 1 回、同じ条件で聞き取りと 2 分スピーチを測る。")); return box; }
+  box.append(h("div", { style: "overflow-x:auto" }, h("table", { class: "num", style: "border-collapse:collapse;width:100%;font-size:14px" },
+    h("thead", {}, h("tr", {}, ["日付", "聞き取り", "wpm", "語彙の幅", "話した語数"].map((t) => h("th", { style: "text-align:left;padding:6px 8px;border-bottom:1px solid var(--rule);color:var(--muted);font-weight:500" }, t)))),
+    h("tbody", {}, rows.slice().reverse().map((r) => h("tr", {}, [r.date, Math.round(r.listen * 100) + "%", r.wpm ?? "—", Math.round((r.ttr || 0) * 100) + "%", r.words].map((t) => h("td", { style: "padding:6px 8px;border-bottom:1px solid var(--rule)" }, t))))))));
+  return box;
 }
 function minutesChart() {
   const W = 640, H = 170, L = 30, B = 22, T = 8;
