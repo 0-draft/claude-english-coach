@@ -1,6 +1,6 @@
 # Phrases
 
-間違えた表現と正しい表現。回数が多いものほど要注意。
+Mistakes and their corrections. The higher the count, the more it needs review.
 
-| 間違い | 正しい | ポイント | 回数 |
+| Mistake | Correction | Note | Count |
 | --- | --- | --- | --- |

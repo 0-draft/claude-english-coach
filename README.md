@@ -1,19 +1,33 @@
 # english
 
-英語学習の記録。書いた英文、直された表現、覚えた単語をここに貯める。
+A template repo for learning English with [Claude Code](https://docs.claude.com/en/docs/claude-code/overview). Write to Claude in English, get corrections, and keep every mistake and new word in plain Markdown so you can review them later.
 
-## 構成
+## How it works
 
-| パス | 中身 |
+`CLAUDE.md` tells Claude how to behave in this repo:
+
+1. You write in English (chat, a diary entry, a draft issue or PR).
+2. Claude replies in English, then corrects your text in your native language.
+3. Claude logs the session to `journal/`, adds mistakes to `phrases.md` and new words to `vocab.md`.
+4. Say `quiz` and Claude asks you 5 questions, picking your most frequent mistakes first.
+
+## Layout
+
+| Path | Contents |
 | --- | --- |
-| `journal/YYYY/MM-DD.md` | その日に書いた英文と添削結果 |
-| `phrases.md` | 間違えた表現 → 正しい表現の対応表 (復習用) |
-| `vocab.md` | 覚えたい単語・イディオム |
-| `tech/` | issue / PR / review コメントなど技術英語の型 |
+| `CLAUDE.md` | Rules Claude follows here (correction format, logging, quiz) |
+| `journal/YYYY/MM-DD.md` | What you wrote each day, with corrections |
+| `phrases.md` | Mistake → correction table, with a count per mistake |
+| `vocab.md` | Words and idioms you want to keep |
+| `tech/` | Phrases for GitHub issues, PRs and review replies |
 
-## 使い方
+## Getting started
 
-1. Claude に英語で話しかける or 英文を書く
-2. 添削結果を `journal/` に残す
-3. 間違えた表現は `phrases.md`、新しい単語は `vocab.md` に追記
-4. たまに `phrases.md` からクイズを出してもらって復習する
+1. Click **Use this template** on GitHub and create your own copy. Make it private if you'd rather keep your diary to yourself.
+2. Clone it and run `claude` inside.
+3. Set your native language at the top of `CLAUDE.md` (default: Japanese).
+4. Write something in English.
+
+## License
+
+[MIT](LICENSE)

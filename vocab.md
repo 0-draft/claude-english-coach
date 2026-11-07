@@ -1,4 +1,4 @@
 # Vocab
 
-| 単語・表現 | 意味 | 例文 |
+| Word / phrase | Meaning | Example |
 | --- | --- | --- |

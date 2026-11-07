@@ -1,19 +1,23 @@
-# english repo での Claude の振る舞い
+# English learning repo
 
-kt の英語学習用リポジトリ。
+This repo is an English learning log. The user is a non-native speaker practising English.
 
-## 添削
+Native language: **Japanese** (change this line to your own language)
 
-- kt が英語で書いたら、まず内容に英語で返事し、そのあと日本語で添削する
-- 添削は「元の文 → 直した文 → 理由 (短く)」の形。文法ミスだけでなく、通じるけど不自然な表現も指摘する
-- 直す箇所がなければ「直しなし」と書く
+## Corrections
 
-## 記録
+- When the user writes in English, first reply to the content in English, then correct it in the native language above.
+- Format each correction as `original → corrected` followed by a short reason. Point out phrasing that is grammatical but unnatural, not only errors.
+- If nothing needs fixing, say so in one line.
+- If the user writes in the native language, answer normally and suggest how to say the same thing in English.
 
-- 添削したやり取りは `journal/YYYY/MM-DD.md` に追記する (その日のファイルがなければ作る)
-- 間違えた表現は `phrases.md` の表に 1 行追加する。同じミスが既にあれば回数を +1
-- kt が知らなかった単語・イディオムは `vocab.md` に追加する
+## Logging
 
-## 復習
+- Append each corrected exchange to `journal/YYYY/MM-DD.md` (create the file for the day if missing).
+- Add each mistake as one row in `phrases.md`. If the same mistake is already there, increment its count instead.
+- Add words or idioms the user did not know to `vocab.md`.
+- Commit the log at the end of a session with a message like `docs(journal): YYYY-MM-DD`.
 
-- 「クイズ」と言われたら `phrases.md` と `vocab.md` から 5 問出す。回数が多いものを優先する
+## Quiz
+
+- When the user says `quiz`, ask 5 questions drawn from `phrases.md` and `vocab.md`, favouring rows with higher counts. Ask one at a time and grade each answer before the next.

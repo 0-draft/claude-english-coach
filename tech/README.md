@@ -1,19 +1,19 @@
 # Tech English
 
-OSS の issue / PR / review でそのまま使える言い回しを貯める。
+Phrases you can reuse in GitHub issues, pull requests and code review.
 
-## Issue
+## Issues
 
-- `I ran into X when doing Y.`: X に遭遇した
-- `Steps to reproduce:`: 再現手順
-- `Expected: ... / Actual: ...`: 期待値と実際の挙動
+- `I ran into X when doing Y.`: describe what happened
+- `Steps to reproduce:`: list the steps
+- `Expected: ... / Actual: ...`: contrast expected and actual behaviour
 
-## PR
+## Pull requests
 
-- `This PR fixes #123 by ...`: どう直したかを一言で
-- `Happy to adjust if you prefer a different approach.`: 方針違いなら直す、の柔らかい言い方
+- `This PR fixes #123 by ...`: say how it fixes the issue in one line
+- `Happy to adjust if you prefer a different approach.`: offer to change course
 
-## Review への返信
+## Replying to review
 
-- `Good catch, fixed in <sha>.`: 指摘ありがとう、直した
-- `I went with X because Y, but I'm open to changing it.`: 理由を述べつつ譲歩
+- `Good catch, fixed in <sha>.`: acknowledge and point to the fix
+- `I went with X because Y, but I'm open to changing it.`: explain a choice without digging in
