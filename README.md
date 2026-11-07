@@ -35,7 +35,7 @@ The rules follow second language acquisition research rather than guesswork: sel
 
 ## Drill app
 
-`app/rounds.html` is a single-page app built to run as a [Claude artifact](https://claude.ai). Ask Claude Code to publish it as an artifact with the `db`, `user` and `sample` capabilities. Opened outside claude.ai it still works and saves to the browser.
+`app/rounds.html` is a single-page app built to run as a [Claude artifact](https://claude.ai). Build an ASCII-only copy with `python3 app/build.py app/rounds.html /tmp/rounds.html`, then ask Claude Code to publish that copy as an artifact with the `db`, `user` and `sample` capabilities. The ASCII build matters: the artifact viewer can read the page in a charset other than UTF-8, and the raw file then shows Japanese as mojibake. Opened outside claude.ai, either file works and saves to the browser.
 
 - **Review**: spaced repetition with FSRS ([ts-fsrs](https://github.com/open-spaced-repetition/ts-fsrs) 5.4.2). Every card asks you to produce the English, never to pick it.
 - **Listen**: dictation sentence by sentence. Words you miss become review cards automatically.
