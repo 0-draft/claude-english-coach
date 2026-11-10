@@ -1,4 +1,4 @@
-# english
+# claude-english-coach
 
 A template repo for learning English with [Claude Code](https://docs.claude.com/en/docs/claude-code/overview). Write to Claude in English, get corrections, and keep every mistake and new word in plain Markdown so you can review them later.
 
